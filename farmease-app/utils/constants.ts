@@ -3,9 +3,9 @@
 export const APP_NAME = 'FarmEase';
 export const APP_TAGLINE = 'From Soil to Sale';
 
-// Supabase config — replace with your actual values
-export const SUPABASE_URL = 'https://your-project.supabase.co';
-export const SUPABASE_ANON_KEY = 'your-anon-key';
+// Supabase config
+export const SUPABASE_URL = 'https://nmzigjuysnepapgyperl.supabase.co';
+export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5temlnanV5c25lcGFwZ3lwZXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNzAyMzYsImV4cCI6MjA4Nzc0NjIzNn0.u9Fg6ul8-8OubfbVnnZACw180pCIPWWD8cJX0yJartU';
 
 // API endpoints
 export const FASTAPI_BASE_URL = 'http://localhost:8000';
