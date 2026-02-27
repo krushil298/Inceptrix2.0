@@ -14,6 +14,9 @@ export const FASTAPI_BASE_URL = 'http://localhost:8000';
 export const WEATHER_API_KEY = 'your-openweathermap-api-key';
 export const WEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
+// Google Maps
+export const GOOGLE_MAPS_API_KEY = 'your-google-maps-api-key';
+
 // User roles
 export type UserRole = 'farmer' | 'buyer';
 

@@ -6,6 +6,12 @@ import ProductForm from '../components/marketplace/ProductForm';
 import { colors } from '../utils/theme';
 import { useAuthStore } from '../store/useAuthStore';
 import { createProduct, CreateProductInput } from '../services/marketplace';
+import { supabase } from '../services/supabase';
+
+// Seeded demo farmer IDs (match what's in the DB)
+const DEMO_SELLER_ID = 'a1b2c3d4-1111-4000-8000-000000000001';
+const DEMO_SELLER_EMAIL = 'rajesh@farmease.demo';
+const DEMO_SELLER_PASSWORD = 'demo12345';
 
 export default function AddProductScreen() {
     const router = useRouter();
@@ -15,8 +21,24 @@ export default function AddProductScreen() {
     const handleSubmit = async (data: CreateProductInput) => {
         setLoading(true);
         try {
-            const sellerId = user?.id || 'demo-farmer';
-            const result = await createProduct(data, sellerId);
+            let sellerId = user?.id;
+            const isDummy = !sellerId || sellerId.startsWith('dummy');
+
+            // If using dummy auth, sign in as a real demo farmer so RLS works
+            if (isDummy) {
+                const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
+                    email: DEMO_SELLER_EMAIL,
+                    password: DEMO_SELLER_PASSWORD,
+                });
+                if (authErr || !authData.user) {
+                    console.error('Demo sign-in failed:', authErr);
+                    sellerId = DEMO_SELLER_ID;
+                } else {
+                    sellerId = authData.user.id;
+                }
+            }
+
+            const result = await createProduct(data, sellerId!);
 
             if (result) {
                 Alert.alert(
@@ -25,11 +47,9 @@ export default function AddProductScreen() {
                     [{ text: 'Great!', onPress: () => router.back() }]
                 );
             } else {
-                // Demo mode — simulate success
                 Alert.alert(
-                    '🎉 Product Listed!',
-                    `"${data.name}" has been listed on the marketplace.\n(Demo mode — saved locally)`,
-                    [{ text: 'Great!', onPress: () => router.back() }]
+                    'Oops',
+                    'Could not list the product. Please try again.',
                 );
             }
         } catch (error) {

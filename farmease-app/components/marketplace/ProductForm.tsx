@@ -36,9 +36,7 @@ export default function ProductForm({
     const [price, setPrice] = useState(initialValues?.price?.toString() || '');
     const [quantity, setQuantity] = useState(initialValues?.quantity?.toString() || '');
     const [unit, setUnit] = useState(initialValues?.unit || 'kg');
-    const [sellerName, setSellerName] = useState(initialValues?.seller_name || '');
-    const [sellerPhone, setSellerPhone] = useState(initialValues?.seller_phone || '');
-    const [sellerLocation, setSellerLocation] = useState(initialValues?.seller_location || '');
+    const [location, setLocation] = useState(initialValues?.location || '');
     const [imageUri, setImageUri] = useState(initialValues?.image_url || '');
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -47,7 +45,6 @@ export default function ProductForm({
         if (!name.trim()) newErrors.name = 'Product name is required';
         if (!price.trim() || parseFloat(price) <= 0) newErrors.price = 'Enter a valid price';
         if (!quantity.trim() || parseFloat(quantity) <= 0) newErrors.quantity = 'Enter a valid quantity';
-        if (!sellerName.trim()) newErrors.sellerName = 'Seller name is required';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -79,9 +76,7 @@ export default function ProductForm({
             quantity: parseFloat(quantity),
             unit,
             image_url: imageUri || undefined,
-            seller_name: sellerName.trim(),
-            seller_phone: sellerPhone.trim() || undefined,
-            seller_location: sellerLocation.trim() || undefined,
+            location: location.trim() || undefined,
         });
     };
 
@@ -189,27 +184,13 @@ export default function ProductForm({
                 ))}
             </ScrollView>
 
-            {/* Seller Info */}
-            <Text style={styles.sectionTitle}>Seller Information</Text>
+            {/* Product Location */}
+            <Text style={styles.sectionTitle}>Location</Text>
             <Input
-                label="Your Name *"
-                placeholder="Enter your name"
-                value={sellerName}
-                onChangeText={setSellerName}
-                error={errors.sellerName}
-            />
-            <Input
-                label="Phone Number"
-                placeholder="+91 XXXXX XXXXX"
-                value={sellerPhone}
-                onChangeText={setSellerPhone}
-                keyboardType="phone-pad"
-            />
-            <Input
-                label="Location"
+                label="Product Location"
                 placeholder="e.g. Pune, Maharashtra"
-                value={sellerLocation}
-                onChangeText={setSellerLocation}
+                value={location}
+                onChangeText={setLocation}
             />
 
             {/* Submit */}
