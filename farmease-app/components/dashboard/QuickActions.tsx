@@ -50,6 +50,15 @@ const ACTIONS: QuickAction[] = [
         bgColor: '#F3E5F5',
         iconBg: '#E1BEE7',
     },
+    {
+        id: 'rent',
+        icon: '🚜',
+        label: 'Rent Equipment',
+        subtitle: 'Rent from locals',
+        route: '/rentals',
+        bgColor: '#FFF8E1',
+        iconBg: '#FFECB3',
+    },
 ];
 
 export default function QuickActions() {

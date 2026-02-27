@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
 import SearchBar from '../../components/ui/SearchBar';
@@ -7,6 +7,8 @@ import CategoryPill from '../../components/ui/CategoryPill';
 import { CROP_CATEGORIES } from '../../utils/constants';
 import { useAuthStore } from '../../store/useAuthStore';
 import { formatPrice } from '../../utils/helpers';
+
+const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
 // Sample data — replace with Supabase queries
 const SAMPLE_PRODUCTS = [
@@ -34,7 +36,7 @@ export default function MarketplaceScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
+            {/* Fixed Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>Marketplace</Text>
                 {role === 'farmer' && (
@@ -44,42 +46,45 @@ export default function MarketplaceScreen() {
                 )}
             </View>
 
-            <SearchBar value={search} onChangeText={setSearch} onFilterPress={() => { }} />
-            <CategoryPill categories={CROP_CATEGORIES} selected={selectedCategory} onSelect={setSelectedCategory} />
+            {/* Scrollable Content */}
+            <ScrollView style={styles.scrollArea} showsVerticalScrollIndicator={false}>
+                <SearchBar value={search} onChangeText={setSearch} onFilterPress={() => { }} />
+                <CategoryPill categories={CROP_CATEGORIES} selected={selectedCategory} onSelect={setSelectedCategory} />
 
-            {/* Mandi Prices Banner */}
-            <TouchableOpacity style={styles.mandiBanner}>
-                <Text style={{ fontSize: 20 }}>📈</Text>
-                <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={styles.mandiTitle}>Today's Mandi Prices</Text>
-                    <Text style={styles.mandiSubtext}>Tomato ₹45/kg ↑ • Rice ₹85/kg → • Wheat ₹40/kg ↓</Text>
-                </View>
-                <Text style={styles.mandiArrow}>→</Text>
-            </TouchableOpacity>
+                {/* Mandi Prices Banner */}
+                <TouchableOpacity style={styles.mandiBanner}>
+                    <Text style={{ fontSize: 20 }}>📈</Text>
+                    <View style={{ flex: 1, marginLeft: spacing.md }}>
+                        <Text style={styles.mandiTitle}>Today's Mandi Prices</Text>
+                        <Text style={styles.mandiSubtext}>Tomato ₹45/kg ↑ • Rice ₹85/kg → • Wheat ₹40/kg ↓</Text>
+                    </View>
+                    <Text style={styles.mandiArrow}>→</Text>
+                </TouchableOpacity>
 
-            {/* Product Grid */}
-            <ScrollView contentContainerStyle={styles.productGrid}>
-                {filteredProducts.map((product) => (
-                    <TouchableOpacity
-                        key={product.id}
-                        style={styles.productCard}
-                        onPress={() => router.push({ pathname: '/product-detail', params: product } as any)}
-                        activeOpacity={0.8}
-                    >
-                        <View style={styles.productImageBox}>
-                            <Text style={{ fontSize: 40 }}>{product.emoji}</Text>
-                        </View>
-                        <View style={styles.productInfo}>
-                            <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
-                            <Text style={styles.productPrice}>{formatPrice(product.price)}/{product.unit}</Text>
-                            <Text style={styles.productSeller} numberOfLines={1}>👤 {product.seller}</Text>
-                            <Text style={styles.productLocation} numberOfLines={1}>📍 {product.location}</Text>
-                        </View>
-                        <TouchableOpacity style={styles.cartBtn}>
-                            <Text style={styles.cartBtnText}>Add to Cart</Text>
+                {/* Product Grid */}
+                <View style={styles.productGrid}>
+                    {filteredProducts.map((product) => (
+                        <TouchableOpacity
+                            key={product.id}
+                            style={styles.productCard}
+                            onPress={() => router.push({ pathname: '/product-detail', params: product } as any)}
+                            activeOpacity={0.8}
+                        >
+                            <View style={styles.productImageBox}>
+                                <Text style={{ fontSize: 40 }}>{product.emoji}</Text>
+                            </View>
+                            <View style={styles.productInfo}>
+                                <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+                                <Text style={styles.productPrice}>{formatPrice(product.price)}/{product.unit}</Text>
+                                <Text style={styles.productSeller} numberOfLines={1}>👤 {product.seller}</Text>
+                                <Text style={styles.productLocation} numberOfLines={1}>📍 {product.location}</Text>
+                            </View>
+                            <TouchableOpacity style={styles.cartBtn}>
+                                <Text style={styles.cartBtnText}>Add to Cart</Text>
+                            </TouchableOpacity>
                         </TouchableOpacity>
-                    </TouchableOpacity>
-                ))}
+                    ))}
+                </View>
             </ScrollView>
         </View>
     );
@@ -89,14 +94,16 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     header: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        paddingHorizontal: spacing.base, paddingTop: 60, paddingBottom: spacing.sm,
+        paddingHorizontal: spacing.base, paddingTop: STATUSBAR_HEIGHT + spacing.sm, paddingBottom: spacing.sm,
+        backgroundColor: colors.background,
     },
     title: { fontSize: typography.sizes['2xl'], fontWeight: '700', color: colors.text },
     addBtn: { backgroundColor: colors.primary, paddingHorizontal: spacing.base, paddingVertical: spacing.sm, borderRadius: borderRadius.pill },
     addBtnText: { fontSize: typography.sizes.sm, fontWeight: '600', color: colors.textOnPrimary },
+    scrollArea: { flex: 1 },
     mandiBanner: {
         flexDirection: 'row', alignItems: 'center', marginHorizontal: spacing.base,
-        backgroundColor: colors.warningLight, padding: spacing.md, borderRadius: borderRadius.lg, marginBottom: spacing.sm,
+        backgroundColor: colors.warningLight, padding: spacing.md, borderRadius: borderRadius.lg, marginBottom: spacing.md,
     },
     mandiTitle: { fontSize: typography.sizes.sm, fontWeight: '600', color: colors.text },
     mandiSubtext: { fontSize: typography.sizes.xs, color: colors.textSecondary, marginTop: 2 },

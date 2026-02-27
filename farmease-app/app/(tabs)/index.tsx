@@ -7,6 +7,8 @@ import { getGreeting } from '../../utils/helpers';
 import Card from '../../components/ui/Card';
 import WeatherWidget from '../../components/dashboard/WeatherWidget';
 import CategoryGrid from '../../components/dashboard/CategoryGrid';
+import { DailyTipModal, useDailyTip, ALL_TIPS } from '../../components/dashboard/DailyTipModal';
+import type { DailyTip } from '../../components/dashboard/DailyTipModal';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -20,24 +22,33 @@ const CATEGORIES = [
 
 // Quick action cards
 const QUICK_ACTIONS = [
-    { title: 'Disease Detection', emoji: '📸', desc: 'Scan crop leaves', route: '/(tabs)/detect', color: '#2D6A4F' },
-    { title: 'Crop Recommend', emoji: '🌾', desc: 'Get best crops', route: '/crop-recommend', color: '#40916C' },
-    { title: 'Marketplace', emoji: '🛒', desc: 'Buy & sell crops', route: '/(tabs)/marketplace', color: '#52B788' },
-    { title: 'Rent Equipment', emoji: '🚜', desc: 'Rent from locals', route: '/rentals', color: '#D4A373' },
-    { title: 'Gov Schemes', emoji: '📋', desc: 'Browse schemes', route: '/schemes', color: '#74C69D' },
+    { title: 'Disease Detection', emoji: '📸', desc: 'Scan crop leaves', route: '/(tabs)/detect', color: '#6B4226' },
+    { title: 'Crop Recommend', emoji: '🌾', desc: 'Get best crops', route: '/crop-recommend', color: '#C06014' },
+    { title: 'Marketplace', emoji: '🛒', desc: 'Buy & sell crops', route: '/(tabs)/marketplace', color: '#2D6A4F' },
+    { title: 'Rent Equipment', emoji: '🚜', desc: 'Rent from locals', route: '/rentals', color: '#8B6F47' },
+    { title: 'Gov Schemes', emoji: '📋', desc: 'Browse schemes', route: '/schemes', color: '#B8860B' },
 ];
 
 // Farming tips
 const TIPS = [
-    { title: 'Seasonal Tip', text: 'Prepare soil for monsoon crops!', emoji: '🌧️' },
-    { title: 'Market Alert', text: 'Tomato prices rising — list now!', emoji: '📈' },
-    { title: 'Health Tip', text: 'Check wheat for rust disease', emoji: '🔍' },
+    { title: 'Seasonal Tip', text: 'Prepare soil for monsoon crops!', emoji: '🌧️', bg: '#3E6B48' },
+    { title: 'Market Alert', text: 'Tomato prices rising — list now!', emoji: '📈', bg: '#B8860B' },
+    { title: 'Health Tip', text: 'Check wheat for rust disease', emoji: '🔍', bg: '#8B5E3C' },
 ];
+
+// Map the inline TIPS to matching DailyTip entries for the modal
+const TIP_MODAL_MAP: Record<string, DailyTip> = {
+    'Seasonal Tip': ALL_TIPS.find(t => t.category === 'Seasonal Tip')!,
+    'Market Alert': ALL_TIPS.find(t => t.category === 'Market Alert')!,
+    'Health Tip': ALL_TIPS.find(t => t.category === 'Health Tip')!,
+};
 
 export default function DashboardScreen() {
     const router = useRouter();
     const { user, role } = useAuthStore();
     const [refreshing, setRefreshing] = useState(false);
+    const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
+    const [tappedTip, setTappedTip] = useState<DailyTip | null>(null);
 
     const categoryRoutes: Record<string, string> = {
         '1': '/(tabs)/detect',
@@ -75,13 +86,18 @@ export default function DashboardScreen() {
             {/* Farming Tips Carousel */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tipsRow}>
                 {TIPS.map((tip, i) => (
-                    <View key={i} style={styles.tipCard}>
+                    <TouchableOpacity
+                        key={i}
+                        style={[styles.tipCard, { backgroundColor: tip.bg }]}
+                        activeOpacity={0.8}
+                        onPress={() => setTappedTip(TIP_MODAL_MAP[tip.title] || null)}
+                    >
                         <Text style={styles.tipEmoji}>{tip.emoji}</Text>
                         <View>
                             <Text style={styles.tipTitle}>{tip.title}</Text>
                             <Text style={styles.tipText}>{tip.text}</Text>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 ))}
             </ScrollView>
 
@@ -142,6 +158,16 @@ export default function DashboardScreen() {
             )}
 
             <View style={{ height: spacing['2xl'] }} />
+
+            {/* Daily Tip Popup (auto once per day) */}
+            <DailyTipModal visible={showTip} onClose={dismissTip} tip={dailyTip} />
+
+            {/* Tip modal when tapping a tip card */}
+            <DailyTipModal
+                visible={!!tappedTip}
+                onClose={() => setTappedTip(null)}
+                tip={tappedTip}
+            />
         </ScrollView>
     );
 }
@@ -169,9 +195,9 @@ const styles = StyleSheet.create({
     },
     categoryLabel: { fontSize: typography.sizes.xs, color: colors.text, marginTop: 6, textAlign: 'center', fontWeight: '500' },
 
-    tipsRow: { paddingHorizontal: spacing.base, gap: spacing.md, paddingBottom: spacing.base },
+    tipsRow: { paddingHorizontal: spacing.base, gap: spacing.md, paddingBottom: spacing.base, marginTop: spacing.lg },
     tipCard: {
-        flexDirection: 'row', alignItems: 'center', backgroundColor: colors.primaryLight,
+        flexDirection: 'row', alignItems: 'center',
         paddingHorizontal: spacing.base, paddingVertical: spacing.md, borderRadius: borderRadius.lg,
         width: 260, gap: spacing.md,
     },
