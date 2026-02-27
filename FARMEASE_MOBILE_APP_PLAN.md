@@ -25,10 +25,10 @@
 | 4 | Design system: color palette (greens #2D6A4F, #40916C, #52B788), typography (Poppins), spacing tokens | 🔴 Critical | 1 hr |
 | 5 | Reusable UI components: `Button`, `Card`, `Input`, `Header` | 🔴 Critical | 1.5 hr |
 | 6 | Navigation skeleton: Auth stack → Tab navigator (Dashboard, Detect, Market, Profile) | 🔴 Critical | 45 min |
-| 7 | MongoDB Atlas cluster + collections setup (`users`, `crops`, `products`, `orders`) | 🔴 Critical | 45 min |
-| 8 | Node.js + Express server scaffold + basic routes | 🔴 Critical | 1 hr |
-| 9 | FastAPI server scaffold + load pre-trained disease model | 🔴 Critical | 1.5 hr |
-| 10 | Firebase project setup (Auth + Storage) | 🔴 Critical | 30 min |
+| 7 | Supabase project setup (Auth + PostgreSQL DB + Storage bucket) | 🔴 Critical | 30 min |
+| 8 | Supabase tables setup (`users`, `crops`, `products`, `orders`, `disease_logs`) | 🔴 Critical | 45 min |
+| 9 | FastAPI server scaffold + Supabase client + load pre-trained disease model | 🔴 Critical | 1.5 hr |
+| 10 | Row Level Security (RLS) policies for Supabase tables | 🔴 Critical | 30 min |
 
 **Phase 1 Deliverable:** App boots, navigates between tabs, backend servers running.
 
@@ -43,7 +43,7 @@
 |---|---|---|---|
 | 11 | Login screen UI (phone number input + OTP) | 🔴 Critical | 1 hr |
 | 12 | Register screen UI (name, phone, farm location, land size) | 🔴 Critical | 45 min |
-| 13 | Firebase Phone OTP backend integration | 🔴 Critical | 1 hr |
+| 13 | Supabase Auth Phone OTP integration | 🔴 Critical | 1 hr |
 | 14 | Auth store (Zustand) + protected routes | 🔴 Critical | 45 min |
 | 15 | Simple onboarding (3 swipeable slides — what FarmEase does) | 🟡 Medium | 30 min |
 
@@ -53,7 +53,7 @@
 | 16 | Dashboard layout with scrollable sections | 🔴 Critical | 1 hr |
 | 17 | Weather widget (OpenWeatherMap API integration) | 🟠 High | 1 hr |
 | 18 | Quick action cards (Disease Detection, Crop Recommend, Marketplace, Schemes) | 🔴 Critical | 45 min |
-| 19 | Weather API endpoint (Node.js proxy) | 🟠 High | 30 min |
+| 19 | Weather API endpoint (FastAPI proxy) | 🟠 High | 30 min |
 | 20 | Seasonal farming tips static carousel | 🟡 Medium | 30 min |
 | 21 | Government scheme notification cards (static data for demo) | 🟡 Medium | 30 min |
 
@@ -66,7 +66,7 @@
 | 25 | Pre-trained model integration (PlantVillage CNN) | 🔴 Critical | 2 hr |
 | 26 | Result screen: disease name, confidence %, treatment steps | 🔴 Critical | 1 hr |
 | 27 | Treatment recommendation cards with product suggestions | 🟠 High | 45 min |
-| 28 | Disease history log (save past scans to MongoDB) | 🟡 Medium | 45 min |
+| 28 | Disease history log (save past scans to Supabase) | 🟡 Medium | 45 min |
 
 #### 🛒 Feature 4: Marketplace — Basic (Hour 8–12)
 | # | Task | Priority | Est. Time |
@@ -74,7 +74,7 @@
 | 29 | Product listing screen (browse crops by category) | 🔴 Critical | 1.5 hr |
 | 30 | Product detail screen (photo, price, seller info) | 🟠 High | 1 hr |
 | 31 | Add product form (farmers list their crops) | 🟠 High | 1 hr |
-| 32 | Marketplace CRUD APIs (products collection) | 🔴 Critical | 1.5 hr |
+| 32 | Marketplace CRUD APIs (Supabase products table + FastAPI) | 🔴 Critical | 1.5 hr |
 | 33 | Search & filter (by crop type, price range, location) | 🟠 High | 1 hr |
 | 34 | Cart state management (Zustand) | 🟡 Medium | 45 min |
 
@@ -92,7 +92,7 @@
 | 35 | Crop recommendation screen (input: soil type, pH, climate) | 🟠 High | 1 hr |
 | 36 | Crop recommendation ML API endpoint | 🟠 High | 2 hr |
 | 37 | Results display: top 5 crops + yield predictions | 🟠 High | 45 min |
-| 38 | Crop recommendation backend route | 🟠 High | 30 min |
+| 38 | Crop recommendation FastAPI route | 🟠 High | 30 min |
 
 #### 🧪 Feature 6: Fertilizer Advisory (Hour 15–17)
 | # | Task | Priority | Est. Time |
@@ -106,7 +106,7 @@
 |---|---|---|---|
 | 42 | Government schemes list screen (static JSON data) | 🟡 Medium | 1 hr |
 | 43 | Scheme detail screen with eligibility info | 🟡 Medium | 45 min |
-| 44 | Schemes API endpoint (serve static JSON) | 🟢 Low | 30 min |
+| 44 | Schemes endpoint (Supabase table or FastAPI static JSON) | 🟢 Low | 30 min |
 
 **Phase 3 Deliverable:** Crop recommendation + fertilizer advisory + gov schemes browsable.
 
@@ -152,7 +152,7 @@
 
 ---
 
-## 🏗️ Tech Stack (Confirmed: React Native)
+## 🏗️ Tech Stack (Confirmed: React Native + Supabase + FastAPI)
 
 | Layer | Technology |
 |---|---|
@@ -160,11 +160,11 @@
 | **UI** | React Native Paper + NativeWind |
 | **Navigation** | Expo Router |
 | **State** | Zustand |
-| **Backend API** | Node.js + Express |
-| **ML Server** | FastAPI (Python) |
-| **Database** | MongoDB Atlas |
-| **Auth** | Firebase Auth (Phone OTP) |
-| **Storage** | Firebase Storage |
+| **Backend API + ML** | FastAPI (Python) — single backend for APIs + ML models |
+| **Database** | Supabase (PostgreSQL) |
+| **Auth** | Supabase Auth (Phone OTP, Google sign-in) |
+| **Storage** | Supabase Storage (crop images, assets) |
+| **Realtime** | Supabase Realtime (live marketplace updates) |
 | **Weather** | OpenWeatherMap API (free tier) |
 | **Maps** | React Native Maps (for marketplace location) |
 
@@ -205,11 +205,11 @@ farmease-app/
 │       ├── CameraView.tsx
 │       └── ResultCard.tsx
 ├── services/
-│   ├── api.ts                  # Axios config
-│   ├── auth.ts                 # Firebase auth
+│   ├── supabase.ts             # Supabase client init
+│   ├── auth.ts                 # Supabase auth helpers
 │   ├── disease.ts              # Disease detection API
 │   ├── crops.ts                # Crop recommendation API
-│   └── marketplace.ts          # Marketplace API
+│   └── marketplace.ts          # Marketplace API (Supabase queries)
 ├── store/
 │   ├── useAuthStore.ts
 │   ├── useCartStore.ts
@@ -224,25 +224,23 @@ farmease-app/
 │   ├── images/
 │   ├── fonts/
 │   └── animations/             # Lottie JSON files
-├── ml-backend/                 # FastAPI server
-│   ├── models/
-│   │   ├── disease_model.h5
-│   │   ├── crop_model.pkl
-│   │   └── fertilizer_model.pkl
-│   ├── routes/
-│   │   ├── disease.py
-│   │   ├── crop.py
-│   │   └── fertilizer.py
-│   ├── main.py
-│   └── requirements.txt
-├── backend/                    # Node.js API server
-│   ├── src/
+├── backend/                    # FastAPI server (API + ML)
+│   ├── app/
+│   │   ├── main.py             # FastAPI entry point
+│   │   ├── config.py           # Supabase keys, env vars
+│   │   ├── supabase_client.py  # Supabase Python client
 │   │   ├── routes/
-│   │   ├── models/
-│   │   ├── controllers/
-│   │   └── server.ts
-│   ├── package.json
-│   └── tsconfig.json
+│   │   │   ├── disease.py      # Disease detection endpoint
+│   │   │   ├── crop.py         # Crop recommendation endpoint
+│   │   │   ├── fertilizer.py   # Fertilizer advisory endpoint
+│   │   │   ├── marketplace.py  # Marketplace CRUD endpoints
+│   │   │   └── weather.py      # Weather proxy endpoint
+│   │   └── models/
+│   │       ├── disease_model.h5
+│   │       ├── crop_model.pkl
+│   │       └── fertilizer_model.pkl
+│   ├── requirements.txt
+│   └── Dockerfile
 ├── app.json
 ├── package.json
 └── tsconfig.json
