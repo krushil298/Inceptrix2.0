@@ -65,6 +65,14 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="rentals"
+                options={{
+                    title: 'Rentals',
+                    tabBarIcon: ({ focused }) => <TabIcon emoji="🚜" focused={focused} />,
+                    href: isBuyer ? null : '/(tabs)/rentals',
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                 options={{
                     title: t('tabs.profile'),
