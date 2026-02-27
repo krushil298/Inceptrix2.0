@@ -28,10 +28,12 @@
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 11 | Login screen UI (phone number input + OTP) | 🔴 Critical | 1 hr |
-| 12 | Register screen UI (name, phone, farm location, land size) | 🔴 Critical | 45 min |
-| 13 | Supabase Auth Phone OTP integration | 🔴 Critical | 1 hr |
-| 14 | Auth store (Zustand) + protected routes | 🔴 Critical | 45 min |
-| 15 | Simple onboarding (3 swipeable slides — what FarmEase does) | 🟡 Medium | 30 min |
+| 12 | Role selection screen after login — **Farmer** or **Buyer** (determines dashboard & features) | 🔴 Critical | 30 min |
+| 13 | Register screen — Farmer flow (name, phone, farm location, land size, crop history) | 🔴 Critical | 45 min |
+| 14 | Register screen — Buyer flow (name, phone, delivery address) | 🔴 Critical | 30 min |
+| 15 | Supabase Auth Phone OTP integration | 🔴 Critical | 1 hr |
+| 16 | Auth store (Zustand) + role-based protected routes (farmer vs buyer views) | 🔴 Critical | 45 min |
+| 17 | Simple onboarding (3 swipeable slides — what FarmEase does) | 🟡 Medium | 30 min |
 
 ---
 
