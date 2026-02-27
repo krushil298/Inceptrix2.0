@@ -11,6 +11,7 @@ import CategoryGrid from '../../components/dashboard/CategoryGrid';
 import QuickActions from '../../components/dashboard/QuickActions';
 import { DailyTipModal, useDailyTip, ALL_TIPS } from '../../components/dashboard/DailyTipModal';
 import type { DailyTip } from '../../components/dashboard/DailyTipModal';
+import { usePreloadTranslations } from '../../hooks/useTranslation';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -48,10 +49,46 @@ const TIP_MODAL_MAP: Record<string, DailyTip> = {
 export default function DashboardScreen() {
     const router = useRouter();
     const { user, role } = useAuthStore();
-    const { address: detectedAddress } = useFarmStore();
+    const { location } = useFarmStore();
+    const { t } = usePreloadTranslations([
+        'Dashboard',
+        'Farming Tips',
+        'profile.farmer',
+        'profile.buyer',
+        'dashboard.setLocation',
+        'dashboard.quickActions',
+        'dashboard.diseaseDetection',
+        'dashboard.diseaseDetectionDesc',
+        'dashboard.cropRecommend',
+        'dashboard.cropRecommendDesc',
+        'dashboard.marketplace',
+        'dashboard.marketplaceDesc',
+        'dashboard.rentEquipment',
+        'dashboard.rentEquipmentDesc',
+        'dashboard.govSchemes',
+        'dashboard.govSchemesDesc',
+        'dashboard.seasonalTip',
+        'dashboard.seasonalTipText',
+        'dashboard.marketAlert',
+        'dashboard.marketAlertText',
+        'dashboard.healthTip',
+        'dashboard.healthTipText',
+    ]);
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
     const [tappedTip, setTappedTip] = useState<DailyTip | null>(null);
+
+    const TIPS = [
+        { title: t('dashboard.seasonalTip'), text: t('dashboard.seasonalTipText'), emoji: '🌧️', bg: '#3E6B48' },
+        { title: t('dashboard.marketAlert'), text: t('dashboard.marketAlertText'), emoji: '📈', bg: '#B8860B' },
+        { title: t('dashboard.healthTip'), text: t('dashboard.healthTipText'), emoji: '🔍', bg: '#8B5E3C' },
+    ];
+
+    const TIP_MODAL_MAP: Record<string, DailyTip> = {
+        [t('dashboard.seasonalTip')]: ALL_TIPS.find(t => t.category === 'Seasonal Tip')!,
+        [t('dashboard.marketAlert')]: ALL_TIPS.find(t => t.category === 'Market Alert')!,
+        [t('dashboard.healthTip')]: ALL_TIPS.find(t => t.category === 'Health Tip')!,
+    };
 
     const categoryRoutes: Record<string, string> = {
         '1': '/(tabs)/detect',
@@ -75,8 +112,8 @@ export default function DashboardScreen() {
             {/* Greeting + Weather */}
             <View style={styles.greetingSection}>
                 <View>
-                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || (role === 'farmer' ? 'Farmer' : 'Buyer')}!</Text>
-                    <Text style={styles.location}>📍 {detectedAddress || user?.farm_location || 'Detecting location...'}</Text>
+                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || (role === 'farmer' ? t('profile.farmer') : t('profile.buyer'))}!</Text>
+                    <Text style={styles.location}>📍 {user?.farm_location || t('dashboard.setLocation')}</Text>
                 </View>
             </View>
 
@@ -87,7 +124,7 @@ export default function DashboardScreen() {
             <CategoryGrid />
 
             {/* Farming Tips */}
-            <Text style={styles.sectionTitle}>🌿 Farming Tips</Text>
+            <Text style={styles.sectionTitle}>🌿 {t('Farming Tips')}</Text>
             <View style={styles.tipsRow}>
                 {TIPS.map((tip, i) => (
                     <TouchableOpacity
