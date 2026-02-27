@@ -5,7 +5,8 @@ import { colors, spacing, typography, borderRadius, shadows } from '../../utils/
 import { useAuthStore } from '../../store/useAuthStore';
 import { useLanguageStore } from '../../store/useLanguageStore';
 import Button from '../../components/ui/Button';
-import { useTranslation } from '../../hooks/useTranslation';
+import { usePreloadTranslations } from '../../hooks/useTranslation';
+import { ActivityIndicator } from 'react-native';
 import LanguagePicker from '../../components/ui/LanguagePicker';
 import { LanguageCode } from '../../store/useLanguageStore';
 import { getLanguageByCode } from '../../utils/languages';
@@ -14,7 +15,20 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { user, role, logout } = useAuthStore();
     const { language, setLanguage } = useLanguageStore();
-    const { t } = useTranslation();
+    const { t, isTranslating } = usePreloadTranslations([
+        'profile.title',
+        'profile.farmer',
+        'profile.buyer',
+        'profile.myOrders',
+        'profile.diseaseHistory',
+        'profile.myListings',
+        'profile.savedSchemes',
+        'profile.language',
+        'profile.helpSupport',
+        'profile.about',
+        'profile.signOut',
+        'common.version',
+    ]);
     const [showLangModal, setShowLangModal] = useState(false);
 
     const currentLang = getLanguageByCode(language);
@@ -39,12 +53,18 @@ export default function ProfileScreen() {
         <ScrollView style={styles.container}>
             {/* Profile Header */}
             <View style={styles.header}>
+                {isTranslating && (
+                    <View style={styles.translatingBadge}>
+                        <ActivityIndicator size="small" color="#fff" />
+                        <Text style={styles.translatingText}>Translating...</Text>
+                    </View>
+                )}
                 <View style={styles.avatar}>
                     <Text style={{ fontSize: 40 }}>{role === 'farmer' ? '👨‍🌾' : '🛒'}</Text>
                 </View>
-                <Text style={styles.name}>{user?.name || 'User'}</Text>
+                <Text style={styles.name}>{user?.name || t('common.user')}</Text>
                 <Text style={styles.role}>{role === 'farmer' ? t('profile.farmer') : t('profile.buyer')}</Text>
-                <Text style={styles.phone}>📱 {user?.phone || 'Not set'}</Text>
+                <Text style={styles.phone}>📱 {user?.phone || t('common.notSet')}</Text>
                 {user?.farm_location && <Text style={styles.location}>📍 {user.farm_location}</Text>}
             </View>
 
@@ -140,4 +160,10 @@ const styles = StyleSheet.create({
     langLabel: { flex: 1, fontSize: typography.sizes.base, fontWeight: '500', color: colors.text },
     langLabelActive: { color: colors.primary, fontWeight: '700' },
     langCheck: { fontSize: typography.sizes.lg, color: colors.primary, fontWeight: '700' },
+    translatingBadge: {
+        flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)',
+        paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: borderRadius.pill,
+        marginBottom: spacing.md, gap: spacing.sm,
+    },
+    translatingText: { fontSize: typography.sizes.xs, color: '#fff', fontWeight: '600' },
 });

@@ -14,9 +14,9 @@ const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight ||
 
 // Featured deals for buyers
 const FEATURED_DEALS = [
-    { id: '1', name: 'Farm Fresh Tomatoes', price: 45, originalPrice: 60, unit: 'kg', seller: 'Rajesh Kumar', location: 'Nashik, MH', emoji: '🍅', discount: '25% OFF' },
-    { id: '2', name: 'Organic Basmati Rice', price: 85, originalPrice: 110, unit: 'kg', seller: 'Lakshmi Singh', location: 'Vijayawada, AP', emoji: '🍚', discount: '23% OFF' },
-    { id: '3', name: 'Fresh Alphonso Mangoes', price: 150, originalPrice: 200, unit: 'kg', seller: 'Kiran Patil', location: 'Ratnagiri, MH', emoji: '🥭', discount: '25% OFF' },
+    { id: '1', nameKey: 'marketplace.deals.tomatoes', price: 45, originalPrice: 60, unit: 'kg', seller: 'Rajesh Kumar', location: 'Nashik, MH', emoji: '🍅', discount: '25% OFF' },
+    { id: '2', nameKey: 'marketplace.deals.rice', price: 85, originalPrice: 110, unit: 'kg', seller: 'Lakshmi Singh', location: 'Vijayawada, AP', emoji: '🍚', discount: '23% OFF' },
+    { id: '3', nameKey: 'marketplace.deals.mangoes', price: 150, originalPrice: 200, unit: 'kg', seller: 'Kiran Patil', location: 'Ratnagiri, MH', emoji: '🥭', discount: '25% OFF' },
 ];
 
 

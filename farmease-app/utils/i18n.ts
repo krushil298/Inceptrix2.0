@@ -22,6 +22,8 @@ const translations = {
             english: 'English',
             hindi: 'हिंदी',
             selectLanguage: 'Select Language',
+            user: 'User',
+            notSet: 'Not set',
         },
 
         // ---- Login ----
@@ -295,6 +297,8 @@ const translations = {
             english: 'English',
             hindi: 'हिंदी',
             selectLanguage: 'भाषा चुनें',
+            user: 'उपयोगकर्ता',
+            notSet: 'सेट नहीं है',
         },
 
         // ---- Login ----
