@@ -58,15 +58,17 @@ export default function LoginScreen() {
         >
             {/* Hero illustration area */}
             <View style={styles.heroSection}>
-                <Text style={styles.heroEmoji}>🌾</Text>
-                <Text style={styles.heroTitle}>FarmEase</Text>
-                <Text style={styles.heroSubtitle}>From Soil to Sale</Text>
+                <Image source={require('../../assets/farm_hero_banner.png')} style={styles.heroImage} />
+                <View style={styles.heroOverlay}>
+                    <Text style={styles.heroTitle}>FarmEase</Text>
+                    <Text style={styles.heroSubtitle}>From Soil to Sale</Text>
+                </View>
             </View>
 
             {/* Login form */}
             <View style={styles.formSection}>
                 <Text style={styles.formTitle}>
-                    {otpSent ? 'Enter OTP' : 'Login / Sign Up'}
+                    {otpSent ? 'Enter OTP (Try 123456)' : 'Login / Sign Up'}
                 </Text>
 
                 {!otpSent ? (
@@ -131,15 +133,23 @@ const styles = StyleSheet.create({
     },
     heroSection: {
         flex: 0.4,
-        justifyContent: 'center',
-        alignItems: 'center',
+        position: 'relative',
         backgroundColor: colors.primary,
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
+        overflow: 'hidden',
     },
-    heroEmoji: {
-        fontSize: 60,
-        marginBottom: spacing.sm,
+    heroImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
+        opacity: 0.8,
+    },
+    heroOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.3)',
     },
     heroTitle: {
         fontSize: typography.sizes['4xl'],
@@ -148,8 +158,9 @@ const styles = StyleSheet.create({
     },
     heroSubtitle: {
         fontSize: typography.sizes.base,
-        color: colors.accentLighter,
+        color: colors.textOnPrimary,
         marginTop: spacing.xs,
+        fontWeight: '500',
     },
     formSection: {
         flex: 0.6,

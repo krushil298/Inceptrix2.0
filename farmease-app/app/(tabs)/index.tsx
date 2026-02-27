@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { getGreeting } from '../../utils/helpers';
 import Card from '../../components/ui/Card';
 import WeatherWidget from '../../components/dashboard/WeatherWidget';
+import CategoryGrid from '../../components/dashboard/CategoryGrid';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -67,21 +68,8 @@ export default function DashboardScreen() {
             {/* Weather Widget */}
             <WeatherWidget />
 
-            {/* Category Scroll (Swiggy-style) */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
-                {CATEGORIES.map((cat) => (
-                    <TouchableOpacity
-                        key={cat.id}
-                        style={styles.categoryItem}
-                        onPress={() => router.push(categoryRoutes[cat.id] as any)}
-                    >
-                        <View style={styles.categoryIcon}>
-                            <Text style={{ fontSize: 28 }}>{cat.emoji}</Text>
-                        </View>
-                        <Text style={styles.categoryLabel}>{cat.title}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+            {/* Category Grid (AI Images) */}
+            <CategoryGrid />
 
             {/* Farming Tips Carousel */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tipsRow}>
