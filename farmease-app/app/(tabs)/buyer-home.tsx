@@ -9,6 +9,8 @@ import SearchBar from '../../components/ui/SearchBar';
 import CategoryPill from '../../components/ui/CategoryPill';
 import { CROP_CATEGORIES } from '../../utils/constants';
 import { useTranslation } from '../../hooks/useTranslation';
+import ChatFAB from '../../components/chat/ChatFAB';
+import ChatbotModal from '../../components/chat/ChatbotModal';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
@@ -34,6 +36,7 @@ export default function BuyerHomeScreen() {
     const { t } = useTranslation();
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
+    const [showChat, setShowChat] = useState(false);
 
     const BROWSE_CATEGORIES = [
         { id: '1', name: t('buyerDashboard.vegetables'), emoji: '🥬', color: '#E8F5E9', count: '120+ items' },
@@ -50,6 +53,7 @@ export default function BuyerHomeScreen() {
     };
 
     return (
+        <View style={{ flex: 1 }}>
         <ScrollView
             style={styles.container}
             showsVerticalScrollIndicator={false}
@@ -174,6 +178,11 @@ export default function BuyerHomeScreen() {
 
             <View style={{ height: spacing['3xl'] }} />
         </ScrollView>
+
+            {/* AI Chatbot FAB */}
+            <ChatFAB onPress={() => setShowChat(true)} />
+            <ChatbotModal visible={showChat} onClose={() => setShowChat(false)} />
+        </View>
     );
 }
 

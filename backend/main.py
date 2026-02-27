@@ -9,7 +9,7 @@ import os
 import time
 import requests as _requests
 from collections import defaultdict
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -193,6 +193,53 @@ def speak(req: SpeakRequest, request: Request):
         headers={"Content-Disposition": "inline; filename=speech.wav"},
     )
 
+
+# ─── /transcribe — Speech-to-Text using Groq Whisper ─────────────────────────
+@app.post("/transcribe")
+async def transcribe(file: UploadFile = File(...), request: Request = None):
+    """
+    Convert speech audio to text using Groq's Whisper model.
+    Accepts audio files (wav, mp3, m4a, webm, ogg).
+    """
+    if MOCK_MODE:
+        return {"text": "This is a mock transcription. Start the backend with a real API key for voice input."}
+
+    client_ip = request.client.host if request.client else "unknown"
+    _check_rate_limit(client_ip)
+
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="GROQ_API_KEY not configured.")
+
+    audio_data = await file.read()
+    if len(audio_data) == 0:
+        raise HTTPException(status_code=422, detail="Empty audio file.")
+    if len(audio_data) > 25 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Audio file too large (max 25 MB).")
+
+    try:
+        import httpx
+        headers = {"Authorization": f"Bearer {GROQ_API_KEY}"}
+        files = {"file": (file.filename or "audio.wav", audio_data, file.content_type or "audio/wav")}
+        data = {"model": "whisper-large-v3-turbo", "response_format": "json"}
+
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/audio/transcriptions",
+                headers=headers,
+                files=files,
+                data=data,
+            )
+
+        if resp.status_code != 200:
+            raise HTTPException(status_code=502, detail="Whisper transcription failed.")
+
+        result = resp.json()
+        return {"text": result.get("text", "").strip()}
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Transcription error: {_sanitize_error(exc)}")
 
 
 # ─── Chat endpoint ────────────────────────────────────────────────────────────

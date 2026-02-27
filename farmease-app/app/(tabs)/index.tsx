@@ -12,6 +12,8 @@ import QuickActions from '../../components/dashboard/QuickActions';
 import { DailyTipModal, useDailyTip, ALL_TIPS } from '../../components/dashboard/DailyTipModal';
 import type { DailyTip } from '../../components/dashboard/DailyTipModal';
 import { usePreloadTranslations } from '../../hooks/useTranslation';
+import ChatFAB from '../../components/chat/ChatFAB';
+import ChatbotModal from '../../components/chat/ChatbotModal';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -88,6 +90,7 @@ export default function DashboardScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
     const [tappedTip, setTappedTip] = useState<DailyTip | null>(null);
+    const [showChat, setShowChat] = useState(false);
 
     const TIPS = [
         { title: t('dashboard.seasonalTip'), text: t('dashboard.seasonalTipText'), emoji: '🌧️', bg: '#3E6B48' },
@@ -116,6 +119,7 @@ export default function DashboardScreen() {
     };
 
     return (
+        <View style={{ flex: 1 }}>
         <ScrollView
             style={styles.container}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
@@ -174,6 +178,11 @@ export default function DashboardScreen() {
                 tip={tappedTip}
             />
         </ScrollView>
+
+            {/* AI Chatbot FAB */}
+            <ChatFAB onPress={() => setShowChat(true)} />
+            <ChatbotModal visible={showChat} onClose={() => setShowChat(false)} />
+        </View>
     );
 }
 
