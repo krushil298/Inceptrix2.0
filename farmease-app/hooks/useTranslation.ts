@@ -1,43 +1,47 @@
 /**
- * useTranslation — the main hook for translating UI strings.
+ * useTranslation / usePreloadTranslations
  *
- * Usage:
- *   const { t, language, isTranslating } = useTranslation();
- *   <Text>{t('Dashboard')}</Text>
- *
- * When language === 'en': t() returns the string immediately, no API call.
- * When language changes: all registered strings are re-translated in one batch.
+ * Architecture:
+ * - translationCache: shared in-memory store (lang -> { original -> translated })
+ * - usePreloadTranslations: fetches all strings for a screen when language changes
+ *   and forces a re-render once translations arrive
+ * - t(): reads from cache synchronously — shows original text until cache is ready
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { translateBatch } from '../services/translate';
 
-// Global registry — every mounted component registers its strings here
-// so we can batch-translate all at once when language changes.
-type Listener = () => void;
-const registry = new Map<string, Set<Listener>>();
-
-function registerString(text: string, listener: Listener) {
-    if (!registry.has(text)) registry.set(text, new Set());
-    registry.get(text)!.add(listener);
-    return () => registry.get(text)?.delete(listener);
-}
-
-// Per-language translation store (in-memory, shared across components)
+// Shared per-language cache across all components
 const translationCache: Record<string, Record<string, string>> = {};
+
+// Listeners notified when a language's cache is updated
+type CacheListener = () => void;
+const cacheListeners = new Set<CacheListener>();
+
+function notifyCacheUpdated() {
+    cacheListeners.forEach((fn) => fn());
+}
 
 export function useTranslation() {
     const { language } = useLanguageStore();
-    const [, forceUpdate] = useState(0);
 
-    // Expose a t() function that returns translated text synchronously from cache
+    // Subscribe to cache updates so t() returns fresh values after fetch
+    const [, setTick] = useState(0);
+
+    useEffect(() => {
+        const listener: CacheListener = () => setTick((n) => n + 1);
+        cacheListeners.add(listener);
+        return () => { cacheListeners.delete(listener); };
+    }, []);
+
     const t = useCallback(
         (text: string): string => {
             if (language === 'en' || !text) return text;
-            return translationCache[language]?.[text] ?? text; // return original while loading
+            return translationCache[language]?.[text] ?? text;
         },
-        [language]
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [language, translationCache[language]]
     );
 
     return { t, language };
@@ -45,32 +49,41 @@ export function useTranslation() {
 
 /**
  * Pre-warm the translation cache for a given set of strings.
- * Call this at the top of each screen so translations are ready before render.
+ * Call at the top of each screen with the list of strings it displays.
  *
  * Usage:
- *   usePreloadTranslations(['Dashboard', 'Scan Crop', 'Marketplace']);
+ *   const { t, isTranslating } = usePreloadTranslations(['Dashboard', 'Scan Crop']);
  */
 export function usePreloadTranslations(strings: string[]) {
     const { language } = useLanguageStore();
     const [isTranslating, setIsTranslating] = useState(false);
     const prevLang = useRef<string>('');
-    const prevStrings = useRef<string[]>([]);
+    const prevStringsKey = useRef<string>('');
+
+    // Subscribe to cache updates to re-render after translations arrive
+    const [, setTick] = useState(0);
 
     useEffect(() => {
-        // Skip if English or nothing to translate
+        const listener: CacheListener = () => setTick((n) => n + 1);
+        cacheListeners.add(listener);
+        return () => { cacheListeners.delete(listener); };
+    }, []);
+
+    useEffect(() => {
         if (language === 'en') {
             setIsTranslating(false);
             return;
         }
 
-        // Skip if language and strings haven't changed
         const stringsKey = strings.join('||');
-        if (prevLang.current === language && prevStrings.current.join('||') === stringsKey) return;
+
+        // Skip if nothing changed
+        if (prevLang.current === language && prevStringsKey.current === stringsKey) return;
 
         prevLang.current = language;
-        prevStrings.current = strings;
+        prevStringsKey.current = stringsKey;
 
-        // Only fetch strings not already in cache for this language
+        // Only fetch strings not yet cached for this language
         const cached = translationCache[language] ?? {};
         const toFetch = strings.filter((s) => s && cached[s] === undefined);
 
@@ -87,16 +100,18 @@ export function usePreloadTranslations(strings: string[]) {
                 translationCache[language][original] = translations[i];
             });
             setIsTranslating(false);
+            // Notify all subscribed components to re-render with new translations
+            notifyCacheUpdated();
         });
     }, [language, strings]);
 
-    const { language: lang } = useLanguageStore();
     const t = useCallback(
         (text: string): string => {
-            if (lang === 'en' || !text) return text;
-            return translationCache[lang]?.[text] ?? text;
+            if (language === 'en' || !text) return text;
+            return translationCache[language]?.[text] ?? text;
         },
-        [lang]
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [language, translationCache[language]]
     );
 
     return { t, isTranslating, language };

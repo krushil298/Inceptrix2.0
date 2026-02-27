@@ -1,69 +1,81 @@
 /**
- * Translation service — wraps the FastAPI /api/translate endpoint.
- * Caches results in memory so repeated strings don't hit the network.
+ * Translation service — powered by MyMemory NLP Translation API.
+ *
+ * Calls https://api.mymemory.translated.net directly from the app.
+ * No backend required. Free up to 5000 words/day.
+ * Supports all Indian regional languages (hi, ta, te, kn, mr, bn, gu, pa, ml, or).
+ *
+ * In-memory cache ensures each string is only translated once per session.
  */
-
-import { FASTAPI_BASE_URL } from '../utils/constants';
 
 // In-memory cache: { "hi:Hello" -> "नमस्ते" }
 const cache: Record<string, string> = {};
+
+const MYMEMORY_URL = 'https://api.mymemory.translated.net/get';
 
 function cacheKey(lang: string, text: string): string {
     return `${lang}:${text}`;
 }
 
 /**
+ * Translate a single string using the MyMemory NLP API.
+ * Returns original text on failure.
+ */
+async function translateSingle(text: string, targetLang: string): Promise<string> {
+    if (!text?.trim()) return text;
+
+    const key = cacheKey(targetLang, text);
+    if (cache[key] !== undefined) return cache[key];
+
+    try {
+        const params = new URLSearchParams({
+            q: text,
+            langpair: `en|${targetLang}`,
+        });
+
+        const response = await fetch(`${MYMEMORY_URL}?${params.toString()}`, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+            cache[key] = text;
+            return text;
+        }
+
+        const data = await response.json();
+
+        // MyMemory returns { responseStatus: 200, responseData: { translatedText: "..." } }
+        const translated: string =
+            data?.responseData?.translatedText ?? text;
+
+        // MyMemory sometimes returns the language code on failure — fall back to original
+        const result = translated && translated !== targetLang ? translated : text;
+
+        cache[key] = result;
+        return result;
+    } catch {
+        cache[key] = text;
+        return text;
+    }
+}
+
+/**
  * Translate a batch of English strings to the target language.
- * Returns original strings if the API fails (graceful fallback).
+ * Runs all translations in parallel for speed.
+ * Returns original strings if translation fails for a given string.
  */
 export async function translateBatch(
     texts: string[],
     targetLang: string
 ): Promise<string[]> {
-    // English → return as-is
+    // English → return as-is, no API call
     if (targetLang === 'en') return texts;
+    if (!texts.length) return texts;
 
-    const results: string[] = new Array(texts.length);
-    const uncachedIndices: number[] = [];
-    const uncachedTexts: string[] = [];
-
-    // Check cache first
-    texts.forEach((text, i) => {
-        const key = cacheKey(targetLang, text);
-        if (cache[key] !== undefined) {
-            results[i] = cache[key];
-        } else {
-            uncachedIndices.push(i);
-            uncachedTexts.push(text);
-        }
-    });
-
-    // Nothing new to fetch
-    if (uncachedTexts.length === 0) return results;
-
-    try {
-        const response = await fetch(`${FASTAPI_BASE_URL}/api/translate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ texts: uncachedTexts, target_lang: targetLang }),
-        });
-
-        if (!response.ok) throw new Error('Translation API error');
-
-        const data: { translations: string[] } = await response.json();
-
-        // Fill results and populate cache
-        uncachedIndices.forEach((originalIdx, i) => {
-            const translated = data.translations[i] ?? texts[originalIdx];
-            results[originalIdx] = translated;
-            cache[cacheKey(targetLang, texts[originalIdx])] = translated;
-        });
-    } catch {
-        // Fallback: return original text for all uncached entries
-        uncachedIndices.forEach((originalIdx) => {
-            results[originalIdx] = texts[originalIdx];
-        });
-    }
+    // Run all uncached translations in parallel
+    const results = await Promise.all(
+        texts.map((text) => translateSingle(text, targetLang))
+    );
 
     return results;
 }
@@ -72,6 +84,5 @@ export async function translateBatch(
  * Translate a single string. Convenience wrapper.
  */
 export async function translateOne(text: string, targetLang: string): Promise<string> {
-    const results = await translateBatch([text], targetLang);
-    return results[0];
+    return translateSingle(text, targetLang);
 }
