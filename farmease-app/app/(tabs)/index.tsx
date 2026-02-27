@@ -9,7 +9,7 @@ import WeatherWidget from '../../components/dashboard/WeatherWidget';
 import CategoryGrid from '../../components/dashboard/CategoryGrid';
 import { DailyTipModal, useDailyTip, ALL_TIPS } from '../../components/dashboard/DailyTipModal';
 import type { DailyTip } from '../../components/dashboard/DailyTipModal';
-import { useTranslation } from '../../hooks/useTranslation';
+import { usePreloadTranslations } from '../../hooks/useTranslation';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -47,7 +47,29 @@ const TIP_MODAL_MAP: Record<string, DailyTip> = {
 export default function DashboardScreen() {
     const router = useRouter();
     const { user, role } = useAuthStore();
-    const { t } = useTranslation();
+    const { t } = usePreloadTranslations([
+        'Dashboard',
+        'profile.farmer',
+        'profile.buyer',
+        'dashboard.setLocation',
+        'dashboard.quickActions',
+        'dashboard.diseaseDetection',
+        'dashboard.diseaseDetectionDesc',
+        'dashboard.cropRecommend',
+        'dashboard.cropRecommendDesc',
+        'dashboard.marketplace',
+        'dashboard.marketplaceDesc',
+        'dashboard.rentEquipment',
+        'dashboard.rentEquipmentDesc',
+        'dashboard.govSchemes',
+        'dashboard.govSchemesDesc',
+        'dashboard.seasonalTip',
+        'dashboard.seasonalTipText',
+        'dashboard.marketAlert',
+        'dashboard.marketAlertText',
+        'dashboard.healthTip',
+        'dashboard.healthTipText',
+    ]);
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
     const [tappedTip, setTappedTip] = useState<DailyTip | null>(null);

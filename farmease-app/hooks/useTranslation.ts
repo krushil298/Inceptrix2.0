@@ -11,6 +11,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { translateBatch } from '../services/translate';
+import { translations } from '../utils/i18n';
+
+// Helper to get nested value from the English translation object
+function getLiteralFromKey(key: string): string {
+    if (!key.includes('.')) return key;
+    const parts = key.split('.');
+    let current: any = translations.en;
+    for (const part of parts) {
+        if (current[part] === undefined) return key;
+        current = current[part];
+    }
+    return typeof current === 'string' ? current : key;
+}
 
 // Shared per-language cache across all components
 const translationCache: Record<string, Record<string, string>> = {};
@@ -36,12 +49,13 @@ export function useTranslation() {
     }, []);
 
     const t = useCallback(
-        (text: string): string => {
-            if (language === 'en' || !text) return text;
+        (textOrKey: string): string => {
+            if (!textOrKey) return '';
+            const text = getLiteralFromKey(textOrKey);
+            if (language === 'en') return text;
             return translationCache[language]?.[text] ?? text;
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [language, translationCache[language]]
+        [language]
     );
 
     return { t, language };
@@ -83,9 +97,12 @@ export function usePreloadTranslations(strings: string[]) {
         prevLang.current = language;
         prevStringsKey.current = stringsKey;
 
+        // Convert keys to literals for translation
+        const literalStrings = strings.map(s => getLiteralFromKey(s));
+
         // Only fetch strings not yet cached for this language
         const cached = translationCache[language] ?? {};
-        const toFetch = strings.filter((s) => s && cached[s] === undefined);
+        const toFetch = literalStrings.filter((s) => s && cached[s] === undefined);
 
         if (toFetch.length === 0) {
             setIsTranslating(false);
@@ -106,12 +123,13 @@ export function usePreloadTranslations(strings: string[]) {
     }, [language, strings]);
 
     const t = useCallback(
-        (text: string): string => {
-            if (language === 'en' || !text) return text;
+        (textOrKey: string): string => {
+            if (!textOrKey) return '';
+            const text = getLiteralFromKey(textOrKey);
+            if (language === 'en') return text;
             return translationCache[language]?.[text] ?? text;
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [language, translationCache[language]]
+        [language]
     );
 
     return { t, isTranslating, language };
