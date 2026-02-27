@@ -3,6 +3,7 @@ import { Tabs, Redirect } from 'expo-router';
 import { Text, View, StyleSheet } from 'react-native';
 import { useAuthStore } from '../../store/useAuthStore';
 import { colors, typography } from '../../utils/theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
     return (
@@ -14,12 +15,12 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 
 export default function TabLayout() {
     const { isAuthenticated, isOnboarded, role } = useAuthStore();
+    const { t } = useTranslation();
+    const isBuyer = role === 'buyer';
 
     if (!isAuthenticated || !isOnboarded) {
         return <Redirect href="/(auth)/login" />;
     }
-
-    const isBuyer = role === 'buyer';
 
     return (
         <Tabs
@@ -35,46 +36,38 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: 'Home',
+                    title: t('tabs.home'),
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
                     href: isBuyer ? null : '/(tabs)',
                 }}
             />
-
-            {/* Buyer Home — hidden for farmers */}
             <Tabs.Screen
                 name="buyer-home"
                 options={{
-                    title: 'Home',
+                    title: t('tabs.home'),
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
                     href: isBuyer ? '/(tabs)/buyer-home' : null,
                 }}
             />
-
-            {/* Scan — farmer only */}
             <Tabs.Screen
                 name="detect"
                 options={{
-                    title: 'Scan',
+                    title: t('tabs.scan'),
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🔬" focused={focused} />,
                     href: isBuyer ? null : '/(tabs)/detect',
                 }}
             />
-
-            {/* Marketplace — always visible */}
             <Tabs.Screen
                 name="marketplace"
                 options={{
-                    title: 'Market',
+                    title: t('tabs.market'),
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🛒" focused={focused} />,
                 }}
             />
-
-            {/* Profile — always visible */}
             <Tabs.Screen
                 name="profile"
                 options={{
-                    title: 'Profile',
+                    title: t('tabs.profile'),
                     tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
                 }}
             />

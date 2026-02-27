@@ -1,22 +1,33 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useLanguageStore } from '../../store/useLanguageStore';
 import Button from '../../components/ui/Button';
+import { useTranslation } from '../../hooks/useTranslation';
+import type { Language } from '../../utils/i18n';
+
+const LANGUAGES: { code: Language; label: string; flag: string }[] = [
+    { code: 'en', label: 'English', flag: '🇬🇧' },
+    { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
+];
 
 export default function ProfileScreen() {
     const router = useRouter();
     const { user, role, logout } = useAuthStore();
+    const { language, setLanguage } = useLanguageStore();
+    const { t } = useTranslation();
+    const [showLangModal, setShowLangModal] = useState(false);
 
     const menuItems = [
-        { title: 'My Orders', emoji: '📦', route: '' },
-        { title: 'Disease History', emoji: '🔬', route: '' },
-        { title: 'My Listings', emoji: '📋', route: '', farmerOnly: true },
-        { title: 'Saved Schemes', emoji: '⭐', route: '' },
-        { title: 'Language', emoji: '🌐', route: '' },
-        { title: 'Help & Support', emoji: '❓', route: '' },
-        { title: 'About FarmEase', emoji: 'ℹ️', route: '' },
+        { title: t('profile.myOrders'), emoji: '📦', route: '', action: undefined },
+        { title: t('profile.diseaseHistory'), emoji: '🔬', route: '', action: undefined },
+        { title: t('profile.myListings'), emoji: '📋', route: '', farmerOnly: true, action: undefined },
+        { title: t('profile.savedSchemes'), emoji: '⭐', route: '', action: undefined },
+        { title: t('profile.language'), emoji: '🌐', route: '', action: () => setShowLangModal(true), badge: LANGUAGES.find(l => l.code === language)?.label },
+        { title: t('profile.helpSupport'), emoji: '❓', route: '', action: undefined },
+        { title: t('profile.about'), emoji: 'ℹ️', route: '', action: undefined },
     ];
 
     return (
@@ -27,7 +38,7 @@ export default function ProfileScreen() {
                     <Text style={{ fontSize: 40 }}>{role === 'farmer' ? '👨‍🌾' : '🛒'}</Text>
                 </View>
                 <Text style={styles.name}>{user?.name || 'User'}</Text>
-                <Text style={styles.role}>{role === 'farmer' ? 'Farmer' : 'Buyer'}</Text>
+                <Text style={styles.role}>{role === 'farmer' ? t('profile.farmer') : t('profile.buyer')}</Text>
                 <Text style={styles.phone}>📱 {user?.phone || 'Not set'}</Text>
                 {user?.farm_location && <Text style={styles.location}>📍 {user.farm_location}</Text>}
             </View>
@@ -37,9 +48,14 @@ export default function ProfileScreen() {
                 {menuItems
                     .filter((item) => !item.farmerOnly || role === 'farmer')
                     .map((item, i) => (
-                        <TouchableOpacity key={i} style={styles.menuItem}>
+                        <TouchableOpacity key={i} style={styles.menuItem} onPress={item.action} activeOpacity={0.7}>
                             <Text style={{ fontSize: 20 }}>{item.emoji}</Text>
                             <Text style={styles.menuText}>{item.title}</Text>
+                            {item.badge && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>{item.badge}</Text>
+                                </View>
+                            )}
                             <Text style={styles.menuArrow}>›</Text>
                         </TouchableOpacity>
                     ))}
@@ -48,7 +64,7 @@ export default function ProfileScreen() {
             {/* Logout */}
             <View style={styles.logoutSection}>
                 <Button
-                    title="Sign Out"
+                    title={t('profile.signOut')}
                     onPress={async () => {
                         await logout();
                         router.replace('/(auth)/login');
@@ -58,7 +74,31 @@ export default function ProfileScreen() {
                 />
             </View>
 
-            <Text style={styles.version}>FarmEase v1.0.0</Text>
+            <Text style={styles.version}>{t('common.version')}</Text>
+
+            {/* Language Selection Modal */}
+            <Modal visible={showLangModal} transparent animationType="fade" onRequestClose={() => setShowLangModal(false)}>
+                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowLangModal(false)}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{t('common.selectLanguage')}</Text>
+                        {LANGUAGES.map((lang) => (
+                            <TouchableOpacity
+                                key={lang.code}
+                                style={[styles.langOption, language === lang.code && styles.langOptionActive]}
+                                onPress={() => {
+                                    setLanguage(lang.code);
+                                    setShowLangModal(false);
+                                }}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.langFlag}>{lang.flag}</Text>
+                                <Text style={[styles.langLabel, language === lang.code && styles.langLabelActive]}>{lang.label}</Text>
+                                {language === lang.code && <Text style={styles.langCheck}>✓</Text>}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </ScrollView>
     );
 }
@@ -81,6 +121,37 @@ const styles = StyleSheet.create({
     },
     menuText: { flex: 1, fontSize: typography.sizes.base, color: colors.text, marginLeft: spacing.md, fontWeight: '500' },
     menuArrow: { fontSize: typography.sizes.xl, color: colors.textLight },
+    badge: {
+        backgroundColor: colors.accentLighter, paddingHorizontal: spacing.sm, paddingVertical: 2,
+        borderRadius: borderRadius.pill, marginRight: spacing.sm,
+    },
+    badgeText: { fontSize: typography.sizes.xs, color: colors.primary, fontWeight: '600' },
     logoutSection: { padding: spacing.xl },
     version: { textAlign: 'center', fontSize: typography.sizes.xs, color: colors.textLight, paddingBottom: spacing['2xl'] },
+
+    // Language Modal
+    modalOverlay: {
+        flex: 1, backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center', alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: colors.surface, borderRadius: borderRadius.xl,
+        padding: spacing.xl, width: '80%', ...shadows.lg,
+    },
+    modalTitle: {
+        fontSize: typography.sizes.lg, fontWeight: '700', color: colors.text,
+        textAlign: 'center', marginBottom: spacing.lg,
+    },
+    langOption: {
+        flexDirection: 'row', alignItems: 'center', padding: spacing.base,
+        borderRadius: borderRadius.lg, marginBottom: spacing.sm,
+        backgroundColor: colors.background,
+    },
+    langOptionActive: {
+        backgroundColor: colors.accentLighter, borderWidth: 2, borderColor: colors.primary,
+    },
+    langFlag: { fontSize: 24, marginRight: spacing.md },
+    langLabel: { flex: 1, fontSize: typography.sizes.base, fontWeight: '500', color: colors.text },
+    langLabelActive: { color: colors.primary, fontWeight: '700' },
+    langCheck: { fontSize: typography.sizes.lg, color: colors.primary, fontWeight: '700' },
 });

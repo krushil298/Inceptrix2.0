@@ -5,9 +5,11 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, borderRadius } from '../../utils/theme';
 import Button from '../../components/ui/Button';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function DetectScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [permission, requestPermission] = useCameraPermissions();
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [analyzing, setAnalyzing] = useState(false);
@@ -55,11 +57,9 @@ export default function DetectScreen() {
         return (
             <View style={styles.permissionContainer}>
                 <Text style={{ fontSize: 60 }}>📸</Text>
-                <Text style={styles.permissionTitle}>Camera Access Needed</Text>
-                <Text style={styles.permissionDesc}>
-                    FarmEase needs camera access to scan your crop leaves for disease detection
-                </Text>
-                <Button title="Grant Permission" onPress={requestPermission} size="lg" />
+                <Text style={styles.permissionTitle}>{t('detect.permissionTitle')}</Text>
+                <Text style={styles.permissionDesc}>{t('detect.permissionDesc')}</Text>
+                <Button title={t('detect.grantPermission')} onPress={requestPermission} size="lg" />
             </View>
         );
     }
@@ -69,8 +69,8 @@ export default function DetectScreen() {
             <View style={styles.container}>
                 <Image source={{ uri: capturedImage }} style={styles.preview} />
                 <View style={styles.previewActions}>
-                    <Button title="Retake" onPress={() => setCapturedImage(null)} variant="outline" />
-                    <Button title="Analyze Disease" onPress={analyzeImage} loading={analyzing} />
+                    <Button title={t('detect.retake')} onPress={() => setCapturedImage(null)} variant="outline" />
+                    <Button title={t('detect.analyze')} onPress={analyzeImage} loading={analyzing} />
                 </View>
             </View>
         );
@@ -81,8 +81,8 @@ export default function DetectScreen() {
             <CameraView ref={cameraRef} style={styles.camera} facing="back">
                 {/* Scan overlay */}
                 <View style={styles.overlay}>
-                    <Text style={styles.scanTitle}>Disease Detection</Text>
-                    <Text style={styles.scanSubtitle}>Position crop leaf within the frame</Text>
+                    <Text style={styles.scanTitle}>{t('detect.title')}</Text>
+                    <Text style={styles.scanSubtitle}>{t('detect.subtitle')}</Text>
                     <View style={styles.scanFrame}>
                         <View style={[styles.corner, styles.topLeft]} />
                         <View style={[styles.corner, styles.topRight]} />
@@ -96,7 +96,7 @@ export default function DetectScreen() {
             <View style={styles.controls}>
                 <TouchableOpacity onPress={pickImage} style={styles.controlBtn}>
                     <Text style={{ fontSize: 24 }}>🖼️</Text>
-                    <Text style={styles.controlLabel}>Gallery</Text>
+                    <Text style={styles.controlLabel}>{t('detect.gallery')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={takePicture} style={styles.captureBtn}>
@@ -105,7 +105,7 @@ export default function DetectScreen() {
 
                 <TouchableOpacity onPress={() => { }} style={styles.controlBtn}>
                     <Text style={{ fontSize: 24 }}>⚡</Text>
-                    <Text style={styles.controlLabel}>Flash</Text>
+                    <Text style={styles.controlLabel}>{t('detect.flash')}</Text>
                 </TouchableOpacity>
             </View>
         </View>

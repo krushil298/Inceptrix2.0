@@ -7,10 +7,12 @@ import Input from '../../components/ui/Input';
 import Header from '../../components/ui/Header';
 import { useAuthStore } from '../../store/useAuthStore';
 import { upsertProfile } from '../../services/auth';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function RegisterBuyerScreen() {
     const router = useRouter();
     const { session, setUser, setOnboarded } = useAuthStore();
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [address, setAddress] = useState('');
     const [loading, setLoading] = useState(false);
@@ -38,15 +40,12 @@ export default function RegisterBuyerScreen() {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Header title="Buyer Registration" showBack onBack={() => router.back()} />
-
+            <Header title={t('registerBuyer.title')} showBack onBack={() => router.back()} />
             <Text style={styles.emoji}>🛒</Text>
-            <Text style={styles.subtitle}>Set up your buyer profile</Text>
-
-            <Input label="Full Name" placeholder="Enter your name" value={name} onChangeText={setName} />
-            <Input label="Delivery Address" placeholder="Full address for deliveries" value={address} onChangeText={setAddress} multiline numberOfLines={3} />
-
-            <Button title="Complete Registration" onPress={handleSubmit} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.xl }} />
+            <Text style={styles.subtitle}>{t('registerBuyer.subtitle')}</Text>
+            <Input label={t('registerBuyer.nameLabel')} placeholder={t('registerBuyer.namePlaceholder')} value={name} onChangeText={setName} />
+            <Input label={t('registerBuyer.addressLabel')} placeholder={t('registerBuyer.addressPlaceholder')} value={address} onChangeText={setAddress} multiline numberOfLines={3} />
+            <Button title={t('registerBuyer.submit')} onPress={handleSubmit} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.xl }} />
         </ScrollView>
     );
 }

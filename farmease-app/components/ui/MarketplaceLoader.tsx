@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../../utils/theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -12,6 +13,7 @@ const LOADING_TEXTS = [
 ];
 
 export default function MarketplaceLoader() {
+    const { t } = useTranslation();
     const bounceAnims = useRef(BOUNCING_ITEMS.map(() => new Animated.Value(0))).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -104,8 +106,8 @@ export default function MarketplaceLoader() {
             </View>
 
             {/* Loading text */}
-            <Text style={styles.loadingTitle}>Setting up your marketplace</Text>
-            <Text style={styles.loadingSubtext}>Handpicked from local farmers 🌿</Text>
+            <Text style={styles.loadingTitle}>{t('marketplace.loading')}</Text>
+            <Text style={styles.loadingSubtext}>{t('marketplace.loadingSubtext')}</Text>
 
             {/* Progress bar */}
             <View style={styles.progressTrack}>

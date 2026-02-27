@@ -5,6 +5,7 @@ import { colors, spacing, typography, borderRadius, shadows } from '../utils/the
 import Header from '../components/ui/Header';
 import CategoryPill from '../components/ui/CategoryPill';
 import { SCHEME_CATEGORIES } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
 
 const SCHEMES = [
     { id: '1', name: 'PM-KISAN', category: 'Subsidy', amount: '₹6,000/year', description: 'Direct income support of ₹6,000 per year to farmer families', eligibility: 'All land-holding farmer families', deadline: 'Open', emoji: '💰' },
@@ -17,6 +18,7 @@ const SCHEMES = [
 
 export default function SchemesScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [selected, setSelected] = useState('All');
     const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -25,8 +27,8 @@ export default function SchemesScreen() {
 
     return (
         <ScrollView style={styles.container}>
-            <Header title="Government Schemes" showBack onBack={() => router.back()} />
-            <Text style={styles.subtitle}>Find schemes you're eligible for</Text>
+            <Header title={t('schemes.title')} showBack onBack={() => router.back()} />
+            <Text style={styles.subtitle}>{t('schemes.subtitle')}</Text>
 
             <CategoryPill categories={allCategories} selected={selected} onSelect={setSelected} />
 
@@ -48,14 +50,14 @@ export default function SchemesScreen() {
 
                     {expandedId === scheme.id && (
                         <View style={styles.schemeDetails}>
-                            <Text style={styles.detailLabel}>Description</Text>
+                            <Text style={styles.detailLabel}>{t('schemes.description')}</Text>
                             <Text style={styles.detailText}>{scheme.description}</Text>
-                            <Text style={styles.detailLabel}>Eligibility</Text>
+                            <Text style={styles.detailLabel}>{t('schemes.eligibility')}</Text>
                             <Text style={styles.detailText}>{scheme.eligibility}</Text>
-                            <Text style={styles.detailLabel}>Deadline</Text>
+                            <Text style={styles.detailLabel}>{t('schemes.deadline')}</Text>
                             <Text style={styles.detailText}>{scheme.deadline}</Text>
                             <TouchableOpacity style={styles.applyBtn}>
-                                <Text style={styles.applyBtnText}>Check Eligibility →</Text>
+                                <Text style={styles.applyBtnText}>{t('schemes.checkEligibility')}</Text>
                             </TouchableOpacity>
                         </View>
                     )}

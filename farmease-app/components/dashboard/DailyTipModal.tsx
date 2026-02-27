@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -112,7 +113,7 @@ interface DailyTipModalProps {
 
 export function DailyTipModal({ visible, onClose, tip }: DailyTipModalProps) {
     if (!visible) return null;
-
+    const { t } = useTranslation();
     const displayTip = tip || getTipOfDay();
 
     return (
@@ -138,12 +139,12 @@ export function DailyTipModal({ visible, onClose, tip }: DailyTipModalProps) {
 
                     {/* Daily tag */}
                     <View style={styles.dailyTag}>
-                        <Text style={styles.dailyTagText}>🌤️ Tip of the Day</Text>
+                        <Text style={styles.dailyTagText}>{t('tipModal.tipOfDay')}</Text>
                     </View>
 
                     {/* Close button */}
                     <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
-                        <Text style={styles.closeBtnText}>Got it!</Text>
+                        <Text style={styles.closeBtnText}>{t('tipModal.gotIt')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

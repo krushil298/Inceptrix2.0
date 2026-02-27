@@ -8,6 +8,7 @@ import { formatPrice } from '../../utils/helpers';
 import SearchBar from '../../components/ui/SearchBar';
 import CategoryPill from '../../components/ui/CategoryPill';
 import { CROP_CATEGORIES } from '../../utils/constants';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
@@ -18,15 +19,7 @@ const FEATURED_DEALS = [
     { id: '3', name: 'Fresh Alphonso Mangoes', price: 150, originalPrice: 200, unit: 'kg', seller: 'Kiran Patil', location: 'Ratnagiri, MH', emoji: '🥭', discount: '25% OFF' },
 ];
 
-// Browse categories
-const BROWSE_CATEGORIES = [
-    { id: '1', name: 'Vegetables', emoji: '🥬', color: '#E8F5E9', count: '120+ items' },
-    { id: '2', name: 'Fruits', emoji: '🍎', color: '#FFF3E0', count: '80+ items' },
-    { id: '3', name: 'Grains', emoji: '🌾', color: '#FFF8E1', count: '60+ items' },
-    { id: '4', name: 'Spices', emoji: '🌶️', color: '#FCE4EC', count: '45+ items' },
-    { id: '5', name: 'Pulses', emoji: '🫘', color: '#F3E5F5', count: '35+ items' },
-    { id: '6', name: 'Dairy', emoji: '🥛', color: '#E3F2FD', count: '25+ items' },
-];
+
 
 // Nearby farmers
 const NEARBY_FARMERS = [
@@ -38,8 +31,18 @@ const NEARBY_FARMERS = [
 export default function BuyerHomeScreen() {
     const router = useRouter();
     const { user } = useAuthStore();
+    const { t } = useTranslation();
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
+
+    const BROWSE_CATEGORIES = [
+        { id: '1', name: t('buyerDashboard.vegetables'), emoji: '🥬', color: '#E8F5E9', count: '120+ items' },
+        { id: '2', name: t('buyerDashboard.fruits'), emoji: '🍎', color: '#FFF3E0', count: '80+ items' },
+        { id: '3', name: t('buyerDashboard.grains'), emoji: '🌾', color: '#FFF8E1', count: '60+ items' },
+        { id: '4', name: t('buyerDashboard.spices'), emoji: '🌶️', color: '#FCE4EC', count: '45+ items' },
+        { id: '5', name: t('buyerDashboard.pulses'), emoji: '🫘', color: '#F3E5F5', count: '35+ items' },
+        { id: '6', name: t('buyerDashboard.dairy'), emoji: '🥛', color: '#E3F2FD', count: '25+ items' },
+    ];
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -56,7 +59,7 @@ export default function BuyerHomeScreen() {
             <View style={styles.header}>
                 <View>
                     <Text style={styles.greeting}>{getGreeting()}, {user?.name || 'Buyer'}!</Text>
-                    <Text style={styles.subtitle}>Find fresh produce near you 🌿</Text>
+                    <Text style={styles.subtitle}>{t('buyerDashboard.subtitle')}</Text>
                 </View>
                 <TouchableOpacity style={styles.cartBadge} onPress={() => router.push('/cart' as any)}>
                     <Text style={styles.cartIcon}>🛒</Text>
@@ -69,9 +72,9 @@ export default function BuyerHomeScreen() {
             {/* Featured Deals */}
             <View style={styles.section}>
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>🔥 Today's Best Deals</Text>
+                    <Text style={styles.sectionTitle}>{t('buyerDashboard.todaysDeals')}</Text>
                     <TouchableOpacity onPress={() => router.push('/(tabs)/marketplace' as any)}>
-                        <Text style={styles.seeAll}>See All →</Text>
+                        <Text style={styles.seeAll}>{t('common.seeAll')}</Text>
                     </TouchableOpacity>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dealsRow}>
@@ -103,7 +106,7 @@ export default function BuyerHomeScreen() {
 
             {/* Browse Categories */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>🛒 Browse Categories</Text>
+                <Text style={styles.sectionTitle}>{t('buyerDashboard.browseCategories')}</Text>
                 <View style={styles.categoryGrid}>
                     {BROWSE_CATEGORIES.map((cat) => (
                         <TouchableOpacity
@@ -122,7 +125,7 @@ export default function BuyerHomeScreen() {
 
             {/* Nearby Farmers */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>📍 Farmers Near You</Text>
+                <Text style={styles.sectionTitle}>{t('buyerDashboard.nearbyFarmers')}</Text>
                 {NEARBY_FARMERS.map((farmer) => (
                     <TouchableOpacity key={farmer.id} style={styles.farmerCard} activeOpacity={0.8}>
                         <View style={styles.farmerAvatar}>
@@ -134,7 +137,7 @@ export default function BuyerHomeScreen() {
                             <Text style={styles.farmerMeta}>⭐ {farmer.rating} · {farmer.products} products</Text>
                         </View>
                         <View style={styles.visitBadge}>
-                            <Text style={styles.visitText}>Visit →</Text>
+                            <Text style={styles.visitText}>{t('buyerDashboard.visit')}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
@@ -142,19 +145,19 @@ export default function BuyerHomeScreen() {
 
             {/* Quick actions for buyer */}
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+                <Text style={styles.sectionTitle}>{t('buyerDashboard.quickActions')}</Text>
                 <View style={styles.quickRow}>
                     <TouchableOpacity style={[styles.quickCard, { backgroundColor: '#8B6F47' }]} onPress={() => router.push('/(tabs)/marketplace' as any)}>
                         <Text style={styles.quickEmoji}>🛍️</Text>
-                        <Text style={styles.quickLabel}>Shop Now</Text>
+                        <Text style={styles.quickLabel}>{t('buyerDashboard.shopNow')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.quickCard, { backgroundColor: '#B8860B' }]} onPress={() => router.push('/cart' as any)}>
                         <Text style={styles.quickEmoji}>🛒</Text>
-                        <Text style={styles.quickLabel}>My Cart</Text>
+                        <Text style={styles.quickLabel}>{t('buyerDashboard.myCart')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.quickCard, { backgroundColor: '#C06014' }]} onPress={() => router.push('/schemes' as any)}>
                         <Text style={styles.quickEmoji}>📋</Text>
-                        <Text style={styles.quickLabel}>Schemes</Text>
+                        <Text style={styles.quickLabel}>{t('buyerDashboard.schemes')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -163,8 +166,8 @@ export default function BuyerHomeScreen() {
             <TouchableOpacity style={styles.mandiBanner}>
                 <Text style={{ fontSize: 20 }}>📈</Text>
                 <View style={{ flex: 1, marginLeft: spacing.md }}>
-                    <Text style={styles.mandiTitle}>Today's Mandi Prices</Text>
-                    <Text style={styles.mandiSubtext}>Tomato ₹45/kg ↑ • Rice ₹85/kg → • Wheat ₹40/kg ↓</Text>
+                    <Text style={styles.mandiTitle}>{t('buyerDashboard.mandiTitle')}</Text>
+                    <Text style={styles.mandiSubtext}>{t('buyerDashboard.mandiSubtext')}</Text>
                 </View>
                 <Text style={{ fontSize: typography.sizes.lg, color: colors.textSecondary }}>→</Text>
             </TouchableOpacity>

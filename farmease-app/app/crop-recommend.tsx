@@ -6,6 +6,7 @@ import Header from '../components/ui/Header';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { SOIL_TYPES } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
 
 const SAMPLE_RESULTS = [
     { name: 'Rice', yield: '2.5 tons/hectare', season: 'Kharif', water: 'High', score: 85, emoji: '🌾' },
@@ -17,6 +18,7 @@ const SAMPLE_RESULTS = [
 
 export default function CropRecommendScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [soilType, setSoilType] = useState('Loam');
     const [ph, setPh] = useState('6.8');
     const [temp, setTemp] = useState('28');
@@ -36,7 +38,7 @@ export default function CropRecommendScreen() {
     if (showResults) {
         return (
             <ScrollView style={styles.container}>
-                <Header title="Top 5 Recommended Crops" showBack onBack={() => setShowResults(false)} />
+                <Header title={t('cropRecommend.resultsTitle')} showBack onBack={() => setShowResults(false)} />
                 {SAMPLE_RESULTS.map((crop, i) => (
                     <View key={i} style={styles.resultCard}>
                         <Text style={{ fontSize: 36 }}>{crop.emoji}</Text>
@@ -51,7 +53,7 @@ export default function CropRecommendScreen() {
                     </View>
                 ))}
                 <View style={{ padding: spacing.xl }}>
-                    <Button title="Try Different Inputs" onPress={() => setShowResults(false)} variant="outline" fullWidth />
+                    <Button title={t('cropRecommend.tryDifferent')} onPress={() => setShowResults(false)} variant="outline" fullWidth />
                 </View>
             </ScrollView>
         );
@@ -59,14 +61,14 @@ export default function CropRecommendScreen() {
 
     return (
         <ScrollView style={styles.container}>
-            <Header title="Crop Recommendation" showBack onBack={() => router.back()} />
+            <Header title={t('cropRecommend.title')} showBack onBack={() => router.back()} />
 
             <View style={styles.form}>
                 <Text style={{ fontSize: 50, textAlign: 'center', marginBottom: spacing.lg }}>🌱</Text>
-                <Text style={styles.formTitle}>Enter Your Soil & Climate Data</Text>
+                <Text style={styles.formTitle}>{t('cropRecommend.formTitle')}</Text>
 
                 {/* Soil Type Selector */}
-                <Text style={styles.label}>Soil Type</Text>
+                <Text style={styles.label}>{t('cropRecommend.soilType')}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.soilRow}>
                     {SOIL_TYPES.map((type) => (
                         <TouchableOpacity
@@ -79,12 +81,12 @@ export default function CropRecommendScreen() {
                     ))}
                 </ScrollView>
 
-                <Input label="pH Level" placeholder="e.g. 6.8" value={ph} onChangeText={setPh} keyboardType="numeric" />
-                <Input label="Temperature (°C)" placeholder="e.g. 28" value={temp} onChangeText={setTemp} keyboardType="numeric" />
-                <Input label="Humidity (%)" placeholder="e.g. 70" value={humidity} onChangeText={setHumidity} keyboardType="numeric" />
-                <Input label="Rainfall (mm)" placeholder="e.g. 1200" value={rainfall} onChangeText={setRainfall} keyboardType="numeric" />
+                <Input label={t('cropRecommend.phLevel')} placeholder={t('cropRecommend.phPlaceholder')} value={ph} onChangeText={setPh} keyboardType="numeric" />
+                <Input label={t('cropRecommend.temperature')} placeholder={t('cropRecommend.tempPlaceholder')} value={temp} onChangeText={setTemp} keyboardType="numeric" />
+                <Input label={t('cropRecommend.humidity')} placeholder={t('cropRecommend.humidityPlaceholder')} value={humidity} onChangeText={setHumidity} keyboardType="numeric" />
+                <Input label={t('cropRecommend.rainfall')} placeholder={t('cropRecommend.rainfallPlaceholder')} value={rainfall} onChangeText={setRainfall} keyboardType="numeric" />
 
-                <Button title="Get Recommendations" onPress={handleRecommend} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.lg }} />
+                <Button title={t('cropRecommend.getRecommendations')} onPress={handleRecommend} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.lg }} />
             </View>
         </ScrollView>
     );

@@ -2,71 +2,63 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, borderRadius, spacing, typography, shadows } from '../../utils/theme';
-
-interface QuickAction {
-    id: string;
-    icon: string;
-    label: string;
-    subtitle: string;
-    route: string;
-    bgColor: string;
-    iconBg: string;
-}
-
-const ACTIONS: QuickAction[] = [
-    {
-        id: 'detect',
-        icon: '🔬',
-        label: 'Disease Detection',
-        subtitle: 'Scan crop leaves',
-        route: '/(tabs)/detect',
-        bgColor: '#E8F5E9',
-        iconBg: '#C8E6C9',
-    },
-    {
-        id: 'crop',
-        icon: '🌱',
-        label: 'Crop Advisor',
-        subtitle: 'Smart recommendations',
-        route: '/crop-recommend',
-        bgColor: '#FFF3E0',
-        iconBg: '#FFE0B2',
-    },
-    {
-        id: 'market',
-        icon: '🛒',
-        label: 'Marketplace',
-        subtitle: 'Buy & sell crops',
-        route: '/(tabs)/marketplace',
-        bgColor: '#E3F2FD',
-        iconBg: '#BBDEFB',
-    },
-    {
-        id: 'schemes',
-        icon: '📋',
-        label: 'Gov Schemes',
-        subtitle: 'Benefits & subsidies',
-        route: '/schemes',
-        bgColor: '#F3E5F5',
-        iconBg: '#E1BEE7',
-    },
-    {
-        id: 'rent',
-        icon: '🚜',
-        label: 'Rent Equipment',
-        subtitle: 'Rent from locals',
-        route: '/rentals',
-        bgColor: '#FFF8E1',
-        iconBg: '#FFECB3',
-    },
-];
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function QuickActions() {
     const router = useRouter();
+    const { t } = useTranslation();
+
+    const ACTIONS = [
+        {
+            id: 'detect',
+            icon: '🔬',
+            label: t('dashboard.diseaseDetection'),
+            subtitle: t('dashboard.diseaseDetectionDesc'),
+            route: '/(tabs)/detect',
+            bgColor: '#E8F5E9',
+            iconBg: '#C8E6C9',
+        },
+        {
+            id: 'crop',
+            icon: '🌱',
+            label: t('dashboard.cropRecommend'),
+            subtitle: t('dashboard.cropRecommendDesc'),
+            route: '/crop-recommend',
+            bgColor: '#FFF3E0',
+            iconBg: '#FFE0B2',
+        },
+        {
+            id: 'market',
+            icon: '🛒',
+            label: t('dashboard.marketplace'),
+            subtitle: t('dashboard.marketplaceDesc'),
+            route: '/(tabs)/marketplace',
+            bgColor: '#E3F2FD',
+            iconBg: '#BBDEFB',
+        },
+        {
+            id: 'schemes',
+            icon: '📋',
+            label: t('dashboard.govSchemes'),
+            subtitle: t('dashboard.govSchemesDesc'),
+            route: '/schemes',
+            bgColor: '#F3E5F5',
+            iconBg: '#E1BEE7',
+        },
+        {
+            id: 'rent',
+            icon: '🚜',
+            label: t('dashboard.rentEquipment'),
+            subtitle: t('dashboard.rentEquipmentDesc'),
+            route: '/rentals',
+            bgColor: '#FFF8E1',
+            iconBg: '#FFECB3',
+        },
+    ];
 
     return (
         <View style={styles.wrapper}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.quickActions')}</Text>
             <View style={styles.grid}>
                 {ACTIONS.map((action) => (
                     <TouchableOpacity
