@@ -23,6 +23,7 @@ const QUICK_ACTIONS = [
     { title: 'Disease Detection', emoji: '📸', desc: 'Scan crop leaves', route: '/(tabs)/detect', color: '#2D6A4F' },
     { title: 'Crop Recommend', emoji: '🌾', desc: 'Get best crops', route: '/crop-recommend', color: '#40916C' },
     { title: 'Marketplace', emoji: '🛒', desc: 'Buy & sell crops', route: '/(tabs)/marketplace', color: '#52B788' },
+    { title: 'Rent Equipment', emoji: '🚜', desc: 'Rent from locals', route: '/rentals', color: '#D4A373' },
     { title: 'Gov Schemes', emoji: '📋', desc: 'Browse schemes', route: '/schemes', color: '#74C69D' },
 ];
 
