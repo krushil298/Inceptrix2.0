@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
@@ -7,6 +7,7 @@ import CategoryPill from '../../components/ui/CategoryPill';
 import { CROP_CATEGORIES } from '../../utils/constants';
 import { useAuthStore } from '../../store/useAuthStore';
 import { formatPrice } from '../../utils/helpers';
+import MarketplaceLoader from '../../components/ui/MarketplaceLoader';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
@@ -27,12 +28,22 @@ export default function MarketplaceScreen() {
     const { role } = useAuthStore();
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const filteredProducts = SAMPLE_PRODUCTS.filter((p) => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
+
+    if (isLoading) {
+        return <MarketplaceLoader />;
+    }
 
     return (
         <View style={styles.container}>

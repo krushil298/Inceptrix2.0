@@ -13,11 +13,13 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
 }
 
 export default function TabLayout() {
-    const { isAuthenticated, isOnboarded } = useAuthStore();
+    const { isAuthenticated, isOnboarded, role } = useAuthStore();
 
     if (!isAuthenticated || !isOnboarded) {
         return <Redirect href="/(auth)/login" />;
     }
+
+    const isBuyer = role === 'buyer';
 
     return (
         <Tabs
@@ -29,20 +31,37 @@ export default function TabLayout() {
                 tabBarLabelStyle: styles.tabLabel,
             }}
         >
+            {/* Farmer Home — hidden for buyers */}
             <Tabs.Screen
                 name="index"
                 options={{
                     title: 'Home',
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
+                    href: isBuyer ? null : '/(tabs)',
                 }}
             />
+
+            {/* Buyer Home — hidden for farmers */}
+            <Tabs.Screen
+                name="buyer-home"
+                options={{
+                    title: 'Home',
+                    tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} />,
+                    href: isBuyer ? '/(tabs)/buyer-home' : null,
+                }}
+            />
+
+            {/* Scan — farmer only */}
             <Tabs.Screen
                 name="detect"
                 options={{
                     title: 'Scan',
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🔬" focused={focused} />,
+                    href: isBuyer ? null : '/(tabs)/detect',
                 }}
             />
+
+            {/* Marketplace — always visible */}
             <Tabs.Screen
                 name="marketplace"
                 options={{
@@ -50,6 +69,8 @@ export default function TabLayout() {
                     tabBarIcon: ({ focused }) => <TabIcon emoji="🛒" focused={focused} />,
                 }}
             />
+
+            {/* Profile — always visible */}
             <Tabs.Screen
                 name="profile"
                 options={{

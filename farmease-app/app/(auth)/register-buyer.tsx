@@ -28,7 +28,7 @@ export default function RegisterBuyerScreen() {
             });
             setUser(profile);
             setOnboarded(true);
-            router.replace('/(tabs)');
+            router.replace('/(tabs)/buyer-home');
         } catch (err) {
             console.error('Registration error:', err);
         } finally {
