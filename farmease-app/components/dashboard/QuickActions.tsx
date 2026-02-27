@@ -1,8 +1,37 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, borderRadius, spacing, typography, shadows } from '../../utils/theme';
 import { useTranslation } from '../../hooks/useTranslation';
+
+function GlassCard({ icon, label, subtitle, onPress }: { icon: string; label: string; subtitle: string; onPress: () => void }) {
+    const scale = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () => {
+        Animated.spring(scale, { toValue: 0.95, useNativeDriver: true, speed: 50, bounciness: 4 }).start();
+    };
+    const handlePressOut = () => {
+        Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 50, bounciness: 4 }).start();
+    };
+
+    return ( 
+        <Animated.View style={[styles.cardOuter, { transform: [{ scale }] }]}>        
+            <TouchableOpacity
+                style={styles.card}
+                onPress={onPress}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                activeOpacity={0.9}
+            >
+                <View style={styles.iconWrapper}>
+                    <Text style={styles.icon}>{icon}</Text>
+                </View>
+                <Text style={styles.label}>{label}</Text>
+                <Text style={styles.subtitle}>{subtitle}</Text>
+            </TouchableOpacity>
+        </Animated.View>
+    );
+}
 
 export default function QuickActions() {
     const router = useRouter();
@@ -15,8 +44,6 @@ export default function QuickActions() {
             label: t('dashboard.diseaseDetection'),
             subtitle: t('dashboard.diseaseDetectionDesc'),
             route: '/(tabs)/detect',
-            bgColor: '#E8F5E9',
-            iconBg: '#C8E6C9',
         },
         {
             id: 'crop',
@@ -24,8 +51,6 @@ export default function QuickActions() {
             label: t('dashboard.cropRecommend'),
             subtitle: t('dashboard.cropRecommendDesc'),
             route: '/crop-recommend',
-            bgColor: '#FFF3E0',
-            iconBg: '#FFE0B2',
         },
         {
             id: 'market',
@@ -33,8 +58,6 @@ export default function QuickActions() {
             label: t('dashboard.marketplace'),
             subtitle: t('dashboard.marketplaceDesc'),
             route: '/(tabs)/marketplace',
-            bgColor: '#E3F2FD',
-            iconBg: '#BBDEFB',
         },
         {
             id: 'schemes',
@@ -42,8 +65,6 @@ export default function QuickActions() {
             label: t('dashboard.govSchemes'),
             subtitle: t('dashboard.govSchemesDesc'),
             route: '/schemes',
-            bgColor: '#F3E5F5',
-            iconBg: '#E1BEE7',
         },
         {
             id: 'rent',
@@ -51,8 +72,6 @@ export default function QuickActions() {
             label: t('dashboard.rentEquipment'),
             subtitle: t('dashboard.rentEquipmentDesc'),
             route: '/rentals',
-            bgColor: '#FFF8E1',
-            iconBg: '#FFECB3',
         },
     ];
 
@@ -61,18 +80,13 @@ export default function QuickActions() {
             <Text style={styles.sectionTitle}>{t('dashboard.quickActions')}</Text>
             <View style={styles.grid}>
                 {ACTIONS.map((action) => (
-                    <TouchableOpacity
+                    <GlassCard
                         key={action.id}
-                        style={[styles.card, { backgroundColor: action.bgColor }]}
+                        icon={action.icon}
+                        label={action.label}
+                        subtitle={action.subtitle}
                         onPress={() => router.push(action.route as any)}
-                        activeOpacity={0.7}
-                    >
-                        <View style={[styles.iconWrapper, { backgroundColor: action.iconBg }]}>
-                            <Text style={styles.icon}>{action.icon}</Text>
-                        </View>
-                        <Text style={styles.label}>{action.label}</Text>
-                        <Text style={styles.subtitle}>{action.subtitle}</Text>
-                    </TouchableOpacity>
+                    />
                 ))}
             </View>
         </View>
@@ -95,16 +109,26 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         gap: spacing.md,
     },
-    card: {
+    cardOuter: {
         width: '47%',
-        borderRadius: borderRadius.xl,
+    },
+    card: {
+        backgroundColor: 'rgba(217, 217, 217, 0.58)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 17,
         padding: spacing.base,
-        ...shadows.sm,
+        shadowColor: '#000',
+        shadowOffset: { width: 6, height: 10 },
+        shadowOpacity: 0.18,
+        shadowRadius: 20,
+        elevation: 8,
     },
     iconWrapper: {
         width: 44,
         height: 44,
         borderRadius: borderRadius.lg,
+        backgroundColor: 'rgba(255, 255, 255, 0.55)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: spacing.sm,
@@ -114,12 +138,12 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: typography.sizes.md,
-        fontWeight: '600',
-        color: colors.text,
+        fontWeight: '700',
+        color: '#1a1a1a',
     },
     subtitle: {
         fontSize: typography.sizes.xs,
-        color: colors.textSecondary,
+        color: '#555',
         marginTop: 2,
     },
 });
