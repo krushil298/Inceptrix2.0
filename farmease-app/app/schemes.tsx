@@ -1,68 +1,117 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Linking, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../utils/theme';
 import Header from '../components/ui/Header';
 import CategoryPill from '../components/ui/CategoryPill';
 import { SCHEME_CATEGORIES } from '../utils/constants';
 import { useTranslation } from '../hooks/useTranslation';
+import { fetchSchemes, Scheme } from '../services/schemes';
 
-const SCHEMES = [
-    { id: '1', name: 'PM-KISAN', category: 'Subsidy', amount: '₹6,000/year', description: 'Direct income support of ₹6,000 per year to farmer families', eligibility: 'All land-holding farmer families', deadline: 'Open', emoji: '💰' },
-    { id: '2', name: 'PMFBY', category: 'Insurance', amount: 'Varies', description: 'Crop insurance at 1.5-5% premium; covers natural calamities', eligibility: 'All farmers growing notified crops', deadline: 'Seasonal', emoji: '🛡️' },
-    { id: '3', name: 'KCC (Kisan Credit Card)', category: 'Loan', amount: 'Up to ₹3 lakhs', description: 'Short-term crop loans at 4% interest rate', eligibility: 'All farmers, sharecroppers, tenants', deadline: 'Open', emoji: '💳' },
-    { id: '4', name: 'Soil Health Card', category: 'Training', amount: 'Free', description: 'Free soil testing and nutrient-based recommendations', eligibility: 'All farmers', deadline: 'Open', emoji: '🌍' },
-    { id: '5', name: 'Sub-Mission on Agri Mechanization', category: 'Equipment', amount: '40-50% subsidy', description: 'Subsidized farm equipment and machinery', eligibility: 'Small & marginal farmers', deadline: 'March 2026', emoji: '🚜' },
-    { id: '6', name: 'PMKSY', category: 'Irrigation', amount: '55-75% subsidy', description: 'Subsidy on micro-irrigation (drip & sprinkler)', eligibility: 'All farmers', deadline: 'Open', emoji: '💧' },
-];
+const CATEGORY_EMOJIS: Record<string, string> = {
+    'Subsidy': '💰',
+    'Insurance': '🛡️',
+    'Loan': '💳',
+    'Training': '🌍',
+    'Equipment': '🚜',
+    'Irrigation': '💧',
+    'Default': '📜'
+};
 
 export default function SchemesScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const [selected, setSelected] = useState('All');
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [schemes, setSchemes] = useState<Scheme[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const loadSchemes = useCallback(async (isRefresh = false) => {
+        if (!isRefresh) setLoading(true);
+        const data = await fetchSchemes(selected);
+        setSchemes(data);
+        setLoading(false);
+        setRefreshing(false);
+    }, [selected]);
+
+    useEffect(() => {
+        loadSchemes();
+    }, [loadSchemes]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        loadSchemes(true);
+    }, [loadSchemes]);
+
+    const handleApply = (url: string) => {
+        if (url) {
+            Linking.openURL(url).catch(err => console.error('Failed to open URL:', err));
+        }
+    };
 
     const allCategories = ['All', ...SCHEME_CATEGORIES] as unknown as readonly string[];
-    const filtered = selected === 'All' ? SCHEMES : SCHEMES.filter((s) => s.category === selected);
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView
+            style={styles.container}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
+        >
             <Header title={t('schemes.title')} showBack onBack={() => router.back()} />
             <Text style={styles.subtitle}>{t('schemes.subtitle')}</Text>
 
             <CategoryPill categories={allCategories} selected={selected} onSelect={setSelected} />
 
-            {filtered.map((scheme) => (
-                <TouchableOpacity
-                    key={scheme.id}
-                    style={styles.schemeCard}
-                    onPress={() => setExpandedId(expandedId === scheme.id ? null : scheme.id)}
-                    activeOpacity={0.8}
-                >
-                    <View style={styles.schemeHeader}>
-                        <Text style={{ fontSize: 28 }}>{scheme.emoji}</Text>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.schemeName}>{scheme.name}</Text>
-                            <Text style={styles.schemeCategory}>{scheme.category} • {scheme.amount}</Text>
+            {loading && !refreshing ? (
+                <View style={[styles.schemeCard, { padding: spacing.xl, alignItems: 'center' }]}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                    <Text style={{ marginTop: spacing.md, color: colors.textSecondary }}>Loading schemes...</Text>
+                </View>
+            ) : schemes.length === 0 ? (
+                <View style={[styles.schemeCard, { padding: spacing.xl, alignItems: 'center' }]}>
+                    <Text style={{ color: colors.textSecondary }}>No schemes found for this category.</Text>
+                </View>
+            ) : (
+                schemes.map((scheme) => (
+                    <TouchableOpacity
+                        key={scheme.id}
+                        style={styles.schemeCard}
+                        onPress={() => setExpandedId(expandedId === scheme.id ? null : scheme.id)}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.schemeHeader}>
+                            <Text style={{ fontSize: 28 }}>{CATEGORY_EMOJIS[scheme.category] || CATEGORY_EMOJIS.Default}</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.schemeName}>{scheme.name}</Text>
+                                <Text style={styles.schemeCategory}>{scheme.category}</Text>
+                            </View>
+                            <Text style={styles.chevron}>{expandedId === scheme.id ? '▲' : '▼'}</Text>
                         </View>
-                        <Text style={styles.chevron}>{expandedId === scheme.id ? '▲' : '▼'}</Text>
-                    </View>
 
-                    {expandedId === scheme.id && (
-                        <View style={styles.schemeDetails}>
-                            <Text style={styles.detailLabel}>{t('schemes.description')}</Text>
-                            <Text style={styles.detailText}>{scheme.description}</Text>
-                            <Text style={styles.detailLabel}>{t('schemes.eligibility')}</Text>
-                            <Text style={styles.detailText}>{scheme.eligibility}</Text>
-                            <Text style={styles.detailLabel}>{t('schemes.deadline')}</Text>
-                            <Text style={styles.detailText}>{scheme.deadline}</Text>
-                            <TouchableOpacity style={styles.applyBtn}>
-                                <Text style={styles.applyBtnText}>{t('schemes.checkEligibility')}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                </TouchableOpacity>
-            ))}
+                        {expandedId === scheme.id && (
+                            <View style={styles.schemeDetails}>
+                                {scheme.benefits && (
+                                    <>
+                                        <Text style={styles.detailLabel}>Benefits / Description</Text>
+                                        <Text style={styles.detailText}>{scheme.benefits}</Text>
+                                    </>
+                                )}
+                                <Text style={styles.detailLabel}>{t('schemes.eligibility')}</Text>
+                                <Text style={styles.detailText}>{scheme.eligibility}</Text>
+
+                                {scheme.apply_url && (
+                                    <TouchableOpacity
+                                        style={styles.applyBtn}
+                                        onPress={() => handleApply(scheme.apply_url)}
+                                    >
+                                        <Text style={styles.applyBtnText}>Check Eligibility on Portal →</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                ))
+            )}
 
             <View style={{ height: spacing['2xl'] }} />
         </ScrollView>

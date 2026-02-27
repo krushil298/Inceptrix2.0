@@ -7,50 +7,31 @@ import Button from '../components/ui/Button';
 import ResultCard from '../components/detection/ResultCard';
 import TreatmentCard from '../components/detection/TreatmentCard';
 
-const MOCK_TREATMENTS = [
-    {
-        step: 1,
-        title: 'Apply Fungicide Spray',
-        description: 'Spray Mancozeb (2.5g/L) or Chlorothalonil at 7-day intervals. Cover both upper and lower leaf surfaces.',
-        type: 'chemical' as const,
-        product: 'Mancozeb 75% WP',
-    },
-    {
-        step: 2,
-        title: 'Neem Oil Treatment',
-        description: 'Mix 5ml neem oil per litre of water. Spray in early morning or late evening for best results. Repeat every 10 days.',
-        type: 'organic' as const,
-        product: 'Organic Neem Oil',
-    },
-    {
-        step: 3,
-        title: 'Remove Infected Leaves',
-        description: 'Carefully prune and destroy infected leaves. Do not compost them — burn or dispose away from the field.',
-        type: 'cultural' as const,
-    },
-    {
-        step: 4,
-        title: 'Crop Rotation',
-        description: 'Practice 2-3 year rotation. Avoid planting Solanaceous crops (tomato, potato, pepper) in the same plot consecutively.',
-        type: 'cultural' as const,
-    },
-];
-
 const DISEASE_DESCRIPTIONS: Record<string, string> = {
     'Early Blight': 'A common fungal disease caused by Alternaria solani. Appears as dark brown concentric rings on lower leaves, spreading upward. Can reduce yield by 20-50% if untreated.',
     'Late Blight': 'Caused by Phytophthora infestans. Shows water-soaked lesions that turn brown. Highly destructive and spreads rapidly in cool, humid conditions.',
     'Leaf Curl': 'Viral disease spread by whiteflies. Causes upward leaf curling, stunted growth, and reduced fruit production.',
+    'Healthy': 'Great news! No signs of disease detected. Keep up the good farming practices.',
     default: 'A plant disease detected in the scanned leaf. Follow the treatment recommendations below to manage and prevent further spread.',
 };
 
 export default function DiseaseResultScreen() {
     const router = useRouter();
-    const params = useLocalSearchParams<{ imageUri: string; disease: string; confidence: string; crop: string }>();
+    const params = useLocalSearchParams<{ imageUri: string; disease: string; confidence: string; crop: string; treatmentsJson?: string }>();
 
     const confidence = parseInt(params.confidence || '0');
     const diseaseName = params.disease || 'Unknown Disease';
-    const severity = confidence >= 80 ? 'High' : confidence >= 50 ? 'Medium' : 'Low';
+    const severity = diseaseName === 'Healthy' ? 'Low' : (confidence >= 80 ? 'High' : confidence >= 50 ? 'Medium' : 'Low');
     const description = DISEASE_DESCRIPTIONS[diseaseName] || DISEASE_DESCRIPTIONS.default;
+
+    let treatments: any[] = [];
+    try {
+        if (params.treatmentsJson) {
+            treatments = JSON.parse(params.treatmentsJson);
+        }
+    } catch (e) {
+        console.error('Failed to parse treatments', e);
+    }
 
     return (
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -78,20 +59,24 @@ export default function DiseaseResultScreen() {
             </View>
 
             {/* Treatment Recommendations */}
-            <Text style={styles.sectionTitle}>💊 Treatment Plan</Text>
-            <Text style={styles.sectionSubtitle}>Follow these steps to manage the disease</Text>
+            {treatments.length > 0 && (
+                <>
+                    <Text style={styles.sectionTitle}>💊 Treatment Plan</Text>
+                    <Text style={styles.sectionSubtitle}>Follow these steps to manage the condition</Text>
 
-            {MOCK_TREATMENTS.map((treatment) => (
-                <TreatmentCard
-                    key={treatment.step}
-                    step={treatment.step}
-                    title={treatment.title}
-                    description={treatment.description}
-                    type={treatment.type}
-                    product={treatment.product}
-                    onProductPress={() => router.push('/(tabs)/marketplace' as any)}
-                />
-            ))}
+                    {treatments.map((treatment) => (
+                        <TreatmentCard
+                            key={treatment.step}
+                            step={treatment.step}
+                            title={treatment.title}
+                            description={treatment.description}
+                            type={treatment.type}
+                            product={treatment.product}
+                            onProductPress={() => router.push('/(tabs)/marketplace' as any)}
+                        />
+                    ))}
+                </>
+            )}
 
             {/* Actions */}
             <View style={styles.actions}>

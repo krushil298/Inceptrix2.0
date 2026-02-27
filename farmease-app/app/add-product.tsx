@@ -5,13 +5,11 @@ import Header from '../components/ui/Header';
 import ProductForm from '../components/marketplace/ProductForm';
 import { colors } from '../utils/theme';
 import { useAuthStore } from '../store/useAuthStore';
-import { createProduct, CreateProductInput } from '../services/marketplace';
+import { createProduct, CreateProductInput, uploadProductImage } from '../services/marketplace';
 import { supabase } from '../services/supabase';
 
-// Seeded demo farmer IDs (match what's in the DB)
+// Seeded demo farmer ID (matches what's in the DB)
 const DEMO_SELLER_ID = 'a1b2c3d4-1111-4000-8000-000000000001';
-const DEMO_SELLER_EMAIL = 'rajesh@farmease.demo';
-const DEMO_SELLER_PASSWORD = 'demo12345';
 
 export default function AddProductScreen() {
     const router = useRouter();
@@ -24,21 +22,30 @@ export default function AddProductScreen() {
             let sellerId = user?.id;
             const isDummy = !sellerId || sellerId.startsWith('dummy');
 
-            // If using dummy auth, sign in as a real demo farmer so RLS works
             if (isDummy) {
-                const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
-                    email: DEMO_SELLER_EMAIL,
-                    password: DEMO_SELLER_PASSWORD,
-                });
-                if (authErr || !authData.user) {
-                    console.error('Demo sign-in failed:', authErr);
-                    sellerId = DEMO_SELLER_ID;
-                } else {
-                    sellerId = authData.user.id;
+                sellerId = DEMO_SELLER_ID;
+
+                // Sync the farmer's profile name to the demo user so listings show the correct name
+                if (user?.name) {
+                    await supabase
+                        .from('users')
+                        .update({
+                            name: user.name,
+                            phone: user.phone || null,
+                            farm_location: user.farm_location || data.location || null,
+                        })
+                        .eq('id', DEMO_SELLER_ID);
                 }
             }
 
-            const result = await createProduct(data, sellerId!);
+            // Upload image to Supabase Storage if a local image was selected
+            let imageUrl = data.image_url;
+            if (imageUrl && (imageUrl.startsWith('file://') || imageUrl.startsWith('ph://') || imageUrl.startsWith('/var/'))) {
+                const uploadedUrl = await uploadProductImage(imageUrl);
+                imageUrl = uploadedUrl || undefined; // Don't save local paths to DB
+            }
+
+            const result = await createProduct({ ...data, image_url: imageUrl }, sellerId!);
 
             if (result) {
                 Alert.alert(

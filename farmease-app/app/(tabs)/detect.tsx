@@ -6,20 +6,21 @@ import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, typography, borderRadius } from '../../utils/theme';
 import Button from '../../components/ui/Button';
 import { useTranslation } from '../../hooks/useTranslation';
+import { analyzeCropImage } from '../../services/ml';
 
 export default function DetectScreen() {
     const router = useRouter();
     const { t } = useTranslation();
     const [permission, requestPermission] = useCameraPermissions();
-    const [capturedImage, setCapturedImage] = useState<string | null>(null);
+    const [capturedImage, setCapturedImage] = useState<{ uri: string; base64?: string } | null>(null);
     const [analyzing, setAnalyzing] = useState(false);
     const cameraRef = useRef<any>(null);
 
     const takePicture = async () => {
         if (cameraRef.current) {
             try {
-                const photo = await cameraRef.current.takePictureAsync({ quality: 0.8 });
-                setCapturedImage(photo.uri);
+                const photo = await cameraRef.current.takePictureAsync({ quality: 0.8, base64: true });
+                setCapturedImage({ uri: photo.uri, base64: photo.base64 });
             } catch (err) {
                 console.error('Camera error:', err);
             }
@@ -30,27 +31,42 @@ export default function DetectScreen() {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             quality: 0.8,
+            base64: true,
         });
-        if (!result.canceled) {
-            setCapturedImage(result.assets[0].uri);
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const asset = result.assets[0];
+            setCapturedImage({ uri: asset.uri, base64: asset.base64 || undefined });
         }
     };
 
     const analyzeImage = async () => {
+        if (!capturedImage?.base64) {
+            Alert.alert('Error', 'No image data available. Please re-capture or select another image.');
+            return;
+        }
         setAnalyzing(true);
-        // Simulate API call — replace with real FastAPI call
-        setTimeout(() => {
+        try {
+            // Send base64 directly to avoid filesystem deprecations and React Native blob bugs
+            const result = await analyzeCropImage(capturedImage.base64);
+            if (result) {
+                router.push({
+                    pathname: '/disease-result',
+                    params: {
+                        imageUri: capturedImage.uri,
+                        disease: result.disease,
+                        confidence: result.confidence.toString(),
+                        crop: result.crop,
+                        treatmentsJson: JSON.stringify(result.treatments),
+                    },
+                });
+            } else {
+                Alert.alert('Error', 'Could not analyze image.');
+            }
+        } catch (err) {
+            Alert.alert('Error', 'Analysis failed. Please try again.');
+        } finally {
             setAnalyzing(false);
-            router.push({
-                pathname: '/disease-result',
-                params: {
-                    imageUri: capturedImage,
-                    disease: 'Early Blight',
-                    confidence: '94',
-                    crop: 'Tomato',
-                },
-            });
-        }, 2000);
+        }
     };
 
     if (!permission?.granted) {
@@ -67,7 +83,7 @@ export default function DetectScreen() {
     if (capturedImage) {
         return (
             <View style={styles.container}>
-                <Image source={{ uri: capturedImage }} style={styles.preview} />
+                <Image source={{ uri: capturedImage.uri }} style={styles.preview} />
                 <View style={styles.previewActions}>
                     <Button title={t('detect.retake')} onPress={() => setCapturedImage(null)} variant="outline" />
                     <Button title={t('detect.analyze')} onPress={analyzeImage} loading={analyzing} />

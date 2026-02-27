@@ -1,5 +1,55 @@
 import { supabase } from './supabase';
+import { Platform } from 'react-native';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../utils/constants';
 
+// ── Image Upload ─────────────────────────────────────────────────────────────
+
+/**
+ * Upload a local image URI to Supabase Storage and return the public URL.
+ * Uses FormData which works correctly with React Native file URIs.
+ */
+export async function uploadProductImage(localUri: string): Promise<string | null> {
+    try {
+        // Generate a unique filename
+        const ext = localUri.split('.').pop()?.toLowerCase() || 'jpg';
+        const fileName = `product_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const filePath = `products/${fileName}`;
+        const contentType = ext === 'png' ? 'image/png' : 'image/jpeg';
+
+        // Build FormData with the file URI (React Native handles the actual file reading)
+        const formData = new FormData();
+        formData.append('file', {
+            uri: localUri,
+            name: fileName,
+            type: contentType,
+        } as any);
+
+        // Upload directly via Supabase Storage REST API
+        const uploadUrl = `${SUPABASE_URL}/storage/v1/object/product-images/${filePath}`;
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'apikey': SUPABASE_ANON_KEY,
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error('[uploadProductImage] upload failed:', response.status, errText);
+            return null;
+        }
+
+        // Build the public URL
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/product-images/${filePath}`;
+        console.log('[uploadProductImage] success:', publicUrl);
+        return publicUrl;
+    } catch (err) {
+        console.error('[uploadProductImage] error:', err);
+        return null;
+    }
+}
 // ── Types ────────────────────────────────────────────────────────────────────
 
 /** Raw row from `products` joined with `users` via seller_id */
@@ -167,26 +217,47 @@ export async function createProduct(
     sellerId: string
 ): Promise<Product | null> {
     try {
+        const insertData = {
+            name: input.name,
+            description: input.description || '',
+            category: input.category,
+            price: input.price,
+            quantity: input.quantity,
+            unit: input.unit,
+            image_url: input.image_url || null,
+            location: input.location || null,
+            seller_id: sellerId,
+            is_available: true,
+        };
+        console.log('[createProduct] inserting:', JSON.stringify(insertData));
+
         const { data, error } = await supabase
             .from('products')
-            .insert({
-                name: input.name,
-                description: input.description,
-                category: input.category,
-                price: input.price,
-                quantity: input.quantity,
-                unit: input.unit,
-                image_url: input.image_url || null,
-                location: input.location || null,
-                seller_id: sellerId,
-                is_available: true,
-            })
-            .select(PRODUCT_SELECT)
+            .insert(insertData)
+            .select('*')
             .single();
+
+        console.log('[createProduct] result:', data ? 'success' : 'no data', 'error:', error);
         if (error) throw error;
-        return rowToProduct(data as unknown as ProductRow);
+
+        // Map the raw row to Product (no seller join on insert)
+        return {
+            id: data.id,
+            created_at: data.created_at,
+            seller_id: data.seller_id,
+            seller_name: 'You',
+            name: data.name,
+            description: data.description || '',
+            category: data.category,
+            price: Number(data.price),
+            quantity: Number(data.quantity),
+            unit: data.unit,
+            image_url: data.image_url || undefined,
+            location: data.location || undefined,
+            is_available: data.is_available,
+        };
     } catch (err) {
-        console.error('Create product error:', err);
+        console.error('[createProduct] error:', err);
         return null;
     }
 }
