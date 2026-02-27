@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
         marginVertical: spacing.sm,
         borderRadius: borderRadius.xl,
         padding: spacing.base,
-        backgroundColor: colors.primary,
+        backgroundColor: '#4A90D9',
         ...shadows.lg,
     },
     loadingContainer: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     },
     condition: {
         fontSize: typography.sizes.sm,
-        color: colors.accentLighter,
+        color: '#C8DCFF',
         fontWeight: '500',
     },
     locationSection: {
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     },
     detailLabel: {
         fontSize: typography.sizes.xs,
-        color: colors.accentLighter,
+        color: '#C8DCFF',
     },
     detailValue: {
         fontSize: typography.sizes.sm,

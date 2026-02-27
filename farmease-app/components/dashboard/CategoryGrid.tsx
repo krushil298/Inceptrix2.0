@@ -7,7 +7,7 @@ const CATEGORIES = [
     { id: '1', name: 'Seeds', image: require('../../assets/farm_category_seeds.png'), route: '/marketplace?category=seeds' },
     { id: '2', name: 'Fertilizers', image: require('../../assets/farm_category_fertilizer.png'), route: '/marketplace?category=fertilizers' },
     { id: '3', name: 'Pesticides', image: require('../../assets/farm_category_pesticide.png'), route: '/marketplace?category=pesticides' },
-    { id: '4', name: 'Machinery', image: require('../../assets/farm_category_machinery.png'), route: '/marketplace?category=machinery' },
+
     { id: '5', name: 'Crops', image: require('../../assets/farm_category_crops.png'), route: '/marketplace?category=crops' },
 ];
 
@@ -37,7 +37,7 @@ export default function CategoryGrid() {
 }
 
 const styles = StyleSheet.create({
-    container: { marginTop: spacing.lg },
+    container: { marginTop: spacing.lg, marginBottom: spacing.sm },
     title: { fontSize: typography.sizes.lg, fontWeight: '700', color: colors.text, paddingHorizontal: spacing.base, marginBottom: spacing.md },
     scrollContent: { paddingHorizontal: spacing.base, gap: spacing.md },
     card: { alignItems: 'center', width: 80, marginRight: spacing.sm },
