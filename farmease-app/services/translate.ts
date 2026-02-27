@@ -61,21 +61,24 @@ async function translateSingle(text: string, targetLang: string): Promise<string
 
 /**
  * Translate a batch of English strings to the target language.
- * Runs all translations in parallel for speed.
- * Returns original strings if translation fails for a given string.
+ * Now runs translations sequentially with a tiny delay to avoid rate limiting/network overhead.
  */
 export async function translateBatch(
     texts: string[],
     targetLang: string
 ): Promise<string[]> {
-    // English → return as-is, no API call
     if (targetLang === 'en') return texts;
     if (!texts.length) return texts;
 
-    // Run all uncached translations in parallel
-    const results = await Promise.all(
-        texts.map((text) => translateSingle(text, targetLang))
-    );
+    console.log(`[Translate] Batch translating ${texts.length} strings to ${targetLang}...`);
+
+    const results: string[] = [];
+    for (const text of texts) {
+        const result = await translateSingle(text, targetLang);
+        results.push(result);
+        // Tiny 20ms delay to prevent hammering the API/network
+        await new Promise(resolve => setTimeout(resolve, 20));
+    }
 
     return results;
 }

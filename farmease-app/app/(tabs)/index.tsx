@@ -73,6 +73,9 @@ export default function DashboardScreen() {
         'dashboard.marketAlertText',
         'dashboard.healthTip',
         'dashboard.healthTipText',
+        'dashboard.goodMorning',
+        'dashboard.goodAfternoon',
+        'dashboard.goodEvening',
     ]);
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
@@ -112,7 +115,7 @@ export default function DashboardScreen() {
             {/* Greeting + Weather */}
             <View style={styles.greetingSection}>
                 <View>
-                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || (role === 'farmer' ? t('profile.farmer') : t('profile.buyer'))}!</Text>
+                    <Text style={styles.greeting}>{t(getGreeting())}, {user?.name || (role === 'farmer' ? t('profile.farmer') : t('profile.buyer'))}!</Text>
                     <Text style={styles.location}>📍 {user?.farm_location || t('dashboard.setLocation')}</Text>
                 </View>
             </View>

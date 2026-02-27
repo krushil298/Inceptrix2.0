@@ -99,6 +99,9 @@ const translations = {
             healthTip: 'Health Tip',
             healthTipText: 'Check wheat for rust disease',
             setLocation: 'Set your location',
+            goodMorning: 'Good Morning',
+            goodAfternoon: 'Good Afternoon',
+            goodEvening: 'Good Evening',
         },
 
         // ---- Buyer Dashboard ----
@@ -356,6 +359,9 @@ const translations = {
             healthTip: 'स्वास्थ्य सुझाव',
             healthTipText: 'गेहूं में रतुआ रोग की जांच करें',
             setLocation: 'अपना स्थान सेट करें',
+            goodMorning: 'सुप्रभात',
+            goodAfternoon: 'नमस्ते',
+            goodEvening: 'शुभ संध्या',
         },
 
         // ---- Buyer Dashboard ----

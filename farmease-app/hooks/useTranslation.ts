@@ -25,6 +25,18 @@ function getLiteralFromKey(key: string): string {
     return typeof current === 'string' ? current : key;
 }
 
+// Helper to get local hardcoded translation if available
+function getHardcodedTranslation(lang: string, key: string): string | undefined {
+    if (!translations[lang as keyof typeof translations]) return undefined;
+    const parts = key.split('.');
+    let current: any = translations[lang as keyof typeof translations];
+    for (const part of parts) {
+        if (current[part] === undefined) return undefined;
+        current = current[part];
+    }
+    return typeof current === 'string' ? current : undefined;
+}
+
 // Shared per-language cache across all components
 const translationCache: Record<string, Record<string, string>> = {};
 
@@ -51,8 +63,16 @@ export function useTranslation() {
     const t = useCallback(
         (textOrKey: string): string => {
             if (!textOrKey) return '';
+
+            // 1. Try hardcoded local translation first
+            const local = getHardcodedTranslation(language, textOrKey);
+            if (local) return local;
+
+            // 2. Resolve to English literal for API-based translation
             const text = getLiteralFromKey(textOrKey);
             if (language === 'en') return text;
+
+            // 3. Fallback to session cache (translated via NLP)
             return translationCache[language]?.[text] ?? text;
         },
         [language]
@@ -97,12 +117,18 @@ export function usePreloadTranslations(strings: string[]) {
         prevLang.current = language;
         prevStringsKey.current = stringsKey;
 
-        // Convert keys to literals for translation
-        const literalStrings = strings.map(s => getLiteralFromKey(s));
+        // Convert keys to literals for translation, but ONLY for those NOT hardcoded
+        const toFetch: string[] = [];
+        const literalStrings = strings.map(s => {
+            const hasLocal = !!getHardcodedTranslation(language, s);
+            const literal = getLiteralFromKey(s);
 
-        // Only fetch strings not yet cached for this language
-        const cached = translationCache[language] ?? {};
-        const toFetch = literalStrings.filter((s) => s && cached[s] === undefined);
+            // If we don't have it locally and it's not in the sync cache, fetch it
+            if (!hasLocal && (translationCache[language]?.[literal] === undefined)) {
+                toFetch.push(literal);
+            }
+            return literal;
+        });
 
         if (toFetch.length === 0) {
             setIsTranslating(false);
@@ -125,8 +151,16 @@ export function usePreloadTranslations(strings: string[]) {
     const t = useCallback(
         (textOrKey: string): string => {
             if (!textOrKey) return '';
+
+            // 1. Try local first
+            const local = getHardcodedTranslation(language, textOrKey);
+            if (local) return local;
+
+            // 2. Resolve to literal
             const text = getLiteralFromKey(textOrKey);
             if (language === 'en') return text;
+
+            // 3. Cache
             return translationCache[language]?.[text] ?? text;
         },
         [language]

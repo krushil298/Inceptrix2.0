@@ -5,7 +5,7 @@ import { colors, spacing, typography, borderRadius, shadows } from '../utils/the
 import Header from '../components/ui/Header';
 import CategoryPill from '../components/ui/CategoryPill';
 import { SCHEME_CATEGORIES } from '../utils/constants';
-import { useTranslation } from '../hooks/useTranslation';
+import { usePreloadTranslations } from '../hooks/useTranslation';
 
 const SCHEMES = [
     { id: '1', name: 'PM-KISAN', category: 'Subsidy', amount: '₹6,000/year', description: 'Direct income support of ₹6,000 per year to farmer families', eligibility: 'All land-holding farmer families', deadline: 'Open', emoji: '💰' },
@@ -18,7 +18,14 @@ const SCHEMES = [
 
 export default function SchemesScreen() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t } = usePreloadTranslations([
+        'schemes.title',
+        'schemes.subtitle',
+        'schemes.description',
+        'schemes.eligibility',
+        'schemes.deadline',
+        'schemes.checkEligibility',
+    ]);
     const [selected, setSelected] = useState('All');
     const [expandedId, setExpandedId] = useState<string | null>(null);
 

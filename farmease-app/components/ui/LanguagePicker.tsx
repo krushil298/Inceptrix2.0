@@ -27,6 +27,7 @@ export default function LanguagePicker({ visible, onClose }: LanguagePickerProps
     const { language, setLanguage } = useLanguageStore();
 
     function handleSelect(lang: Language) {
+        console.log(`[LanguagePicker] Selecting: ${lang.name} (${lang.code})`);
         setLanguage(lang.code as LanguageCode);
         onClose();
     }
