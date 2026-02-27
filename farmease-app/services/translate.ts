@@ -12,80 +12,112 @@
 const cache: Record<string, string> = {};
 
 const MYMEMORY_URL = 'https://api.mymemory.translated.net/get';
+const GOOGLE_URL = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en';
+
+// Map our short codes to standard locales for APIs
+const LOCALE_MAP: Record<string, string> = {
+    hi: 'hi-IN', ta: 'ta-IN', te: 'te-IN', kn: 'kn-IN', mr: 'mr-IN',
+    bn: 'bn-IN', gu: 'gu-IN', pa: 'pa-IN', ml: 'ml-IN', or: 'or-IN'
+};
 
 function cacheKey(lang: string, text: string): string {
     return `${lang}:${text}`;
 }
 
 /**
- * Translate a single string using the MyMemory NLP API.
- * Returns original text on failure.
+ * Primary translation using MyMemory.
  */
-async function translateSingle(text: string, targetLang: string): Promise<string> {
-    if (!text?.trim()) return text;
-
-    const key = cacheKey(targetLang, text);
-    if (cache[key] !== undefined) return cache[key];
-
+async function fetchMyMemory(text: string, targetLang: string): Promise<string | null> {
     try {
+        const locale = LOCALE_MAP[targetLang] || targetLang;
         const params = new URLSearchParams({
             q: text,
-            langpair: `en|${targetLang}`,
+            langpair: `en|${locale}`,
+            de: 'lohiya.krushil@gmail.com'
         });
 
-        const response = await fetch(`${MYMEMORY_URL}?${params.toString()}`, {
-            method: 'GET',
-        });
+        const res = await fetch(`${MYMEMORY_URL}?${params.toString()}`, { method: 'GET' });
+        if (!res.ok) return null;
 
-        if (!response.ok) {
-            cache[key] = text;
-            return text;
+        const data = await res.json();
+        const translated = data?.responseData?.translatedText;
+
+        if (!translated || translated.toUpperCase().includes('EXCEEDED') || translated === locale) {
+            return null;
         }
-
-        const data = await response.json();
-
-        // MyMemory returns { responseStatus: 200, responseData: { translatedText: "..." } }
-        const translated: string =
-            data?.responseData?.translatedText ?? text;
-
-        // MyMemory sometimes returns the language code on failure — fall back to original
-        const result = translated && translated !== targetLang ? translated : text;
-
-        cache[key] = result;
-        return result;
+        return translated;
     } catch {
-        cache[key] = text;
-        return text;
+        return null;
     }
 }
 
 /**
+ * Fallback translation using Google (Free gtx endpoint).
+ */
+async function fetchGoogle(text: string, targetLang: string): Promise<string | null> {
+    try {
+        const url = `${GOOGLE_URL}&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+        const res = await fetch(url, { method: 'GET' });
+        if (!res.ok) return null;
+
+        const data = await res.json();
+        const translated = data?.[0]?.[0]?.[0];
+        return translated || null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Translate a single string with multiple failovers.
+ */
+async function translateSingle(text: string, targetLang: string): Promise<string> {
+    if (!text?.trim() || targetLang === 'en') return text;
+
+    const key = cacheKey(targetLang, text);
+    if (cache[key]) return cache[key];
+
+    // Try MyMemory first
+    let result = await fetchMyMemory(text, targetLang);
+
+    // Fallback to Google if MyMemory fails
+    if (!result) {
+        console.log(`[Translate] MyMemory failed for "${text.substring(0, 10)}", trying Google...`);
+        result = await fetchGoogle(text, targetLang);
+    }
+
+    if (result) {
+        console.log(`[Translate] OK (${targetLang}): "${text.substring(0, 10)}..." -> "${result.substring(0, 10)}..."`);
+        cache[key] = result;
+        return result;
+    }
+
+    console.warn(`[Translate] All engines failed for "${text}" to ${targetLang}`);
+    return text;
+}
+
+/**
  * Translate a batch of English strings to the target language.
- * Now runs translations sequentially with a tiny delay to avoid rate limiting/network overhead.
  */
 export async function translateBatch(
     texts: string[],
     targetLang: string
 ): Promise<string[]> {
-    if (targetLang === 'en') return texts;
-    if (!texts.length) return texts;
+    if (targetLang === 'en' || !texts.length) return texts;
 
-    console.log(`[Translate] Batch translating ${texts.length} strings to ${targetLang}...`);
+    console.log(`[Translate] Batch: ${texts.length} strings to ${targetLang}`);
 
     const results: string[] = [];
     for (const text of texts) {
-        const result = await translateSingle(text, targetLang);
-        results.push(result);
-        // Tiny 20ms delay to prevent hammering the API/network
-        await new Promise(resolve => setTimeout(resolve, 20));
+        const res = await translateSingle(text, targetLang);
+        results.push(res);
+        // Small delay to maintain stability
+        await new Promise(r => setTimeout(r, 30));
     }
 
     return results;
 }
 
-/**
- * Translate a single string. Convenience wrapper.
- */
 export async function translateOne(text: string, targetLang: string): Promise<string> {
     return translateSingle(text, targetLang);
 }
