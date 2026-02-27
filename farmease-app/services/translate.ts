@@ -77,22 +77,20 @@ async function translateSingle(text: string, targetLang: string): Promise<string
     const key = cacheKey(targetLang, text);
     if (cache[key]) return cache[key];
 
-    // Try MyMemory first
-    let result = await fetchMyMemory(text, targetLang);
+    // Priority 1: Google (More stable for mobile gtx endpoint)
+    let result = await fetchGoogle(text, targetLang);
 
-    // Fallback to Google if MyMemory fails
+    // Priority 2: MyMemory fallback
     if (!result) {
-        console.log(`[Translate] MyMemory failed for "${text.substring(0, 10)}", trying Google...`);
-        result = await fetchGoogle(text, targetLang);
+        result = await fetchMyMemory(text, targetLang);
     }
 
-    if (result) {
+    if (result && result !== text) {
         console.log(`[Translate] OK (${targetLang}): "${text.substring(0, 10)}..." -> "${result.substring(0, 10)}..."`);
         cache[key] = result;
         return result;
     }
 
-    console.warn(`[Translate] All engines failed for "${text}" to ${targetLang}`);
     return text;
 }
 

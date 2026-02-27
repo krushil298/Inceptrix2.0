@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -50,7 +50,7 @@ export default function DashboardScreen() {
     const router = useRouter();
     const { user, role } = useAuthStore();
     const { location } = useFarmStore();
-    const { t } = usePreloadTranslations([
+    const { t, isTranslating } = usePreloadTranslations([
         'Dashboard',
         'Farming Tips',
         'profile.farmer',
@@ -176,6 +176,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.base, paddingTop: 60, paddingBottom: spacing.base,
         backgroundColor: colors.primary, borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
     },
+    translatingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 4,
+        borderRadius: borderRadius.pill,
+    },
+    translatingText: { fontSize: 10, color: colors.accentLighter, fontWeight: '500' },
     greeting: { fontSize: typography.sizes.xl, fontWeight: '700', color: colors.textOnPrimary },
     location: { fontSize: typography.sizes.sm, color: colors.accentLighter, marginTop: 4 },
     weatherBadge: {
