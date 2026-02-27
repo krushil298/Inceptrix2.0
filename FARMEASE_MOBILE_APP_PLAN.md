@@ -6,16 +6,7 @@
 
 ---
 
-## ⏰ Hackathon Timeline — 24 Hours (Sorted by Priority)
-
-> **Start:** Hour 0 | **End:** Hour 24
-> **Philosophy:** Ship a polished DEMO with 4 killer features, not 8 half-baked ones.
-
----
-
-### 🔴 PHASE 1: Setup & Foundation (Hour 0–3)
-
-> **Goal:** Running app with navigation, auth screen, and design system ready.
+## 🛠️ 1. Project Setup & Foundation
 
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
@@ -30,15 +21,10 @@
 | 9 | FastAPI server scaffold + Supabase client + load pre-trained disease model | 🔴 Critical | 1.5 hr |
 | 10 | Row Level Security (RLS) policies for Supabase tables | 🔴 Critical | 30 min |
 
-**Phase 1 Deliverable:** App boots, navigates between tabs, backend servers running.
-
 ---
 
-### 🟠 PHASE 2: Core Features — MVP (Hour 3–12)
+## � 2. Authentication
 
-> **Goal:** 4 working features — Auth, Dashboard, Disease Detection, Marketplace.
-
-#### 🔐 Feature 1: Authentication (Hour 3–5)
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 11 | Login screen UI (phone number input + OTP) | 🔴 Critical | 1 hr |
@@ -47,7 +33,10 @@
 | 14 | Auth store (Zustand) + protected routes | 🔴 Critical | 45 min |
 | 15 | Simple onboarding (3 swipeable slides — what FarmEase does) | 🟡 Medium | 30 min |
 
-#### 🏠 Feature 2: Dashboard (Hour 5–8)
+---
+
+## 🏠 3. Dashboard
+
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 16 | Dashboard layout with scrollable sections | 🔴 Critical | 1 hr |
@@ -57,7 +46,10 @@
 | 20 | Seasonal farming tips static carousel | 🟡 Medium | 30 min |
 | 21 | Government scheme notification cards (static data for demo) | 🟡 Medium | 30 min |
 
-#### 🔬 Feature 3: AI Disease Detection — THE WOW FACTOR (Hour 3–10)
+---
+
+## 🔬 4. AI Disease Detection
+
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 22 | Camera screen UI (`expo-camera` + `expo-image-picker`) | 🔴 Critical | 1.5 hr |
@@ -68,7 +60,10 @@
 | 27 | Treatment recommendation cards with product suggestions | 🟠 High | 45 min |
 | 28 | Disease history log (save past scans to Supabase) | 🟡 Medium | 45 min |
 
-#### 🛒 Feature 4: Marketplace — Basic (Hour 8–12)
+---
+
+## 🛒 5. Marketplace
+
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 29 | Product listing screen (browse crops by category) | 🔴 Critical | 1.5 hr |
@@ -78,15 +73,10 @@
 | 33 | Search & filter (by crop type, price range, location) | 🟠 High | 1 hr |
 | 34 | Cart state management (Zustand) | 🟡 Medium | 45 min |
 
-**Phase 2 Deliverable:** Fully working auth → dashboard → scan a leaf → get disease result → browse & list crops.
-
 ---
 
-### 🟡 PHASE 3: Differentiators & Secondary Features (Hour 12–18)
+## 🌱 6. Smart Crop Recommendation
 
-> **Goal:** Add features that make FarmEase stand out from competitors.
-
-#### 🌱 Feature 5: Smart Crop Recommendation (Hour 12–15)
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 35 | Crop recommendation screen (input: soil type, pH, climate) | 🟠 High | 1 hr |
@@ -94,27 +84,29 @@
 | 37 | Results display: top 5 crops + yield predictions | 🟠 High | 45 min |
 | 38 | Crop recommendation FastAPI route | 🟠 High | 30 min |
 
-#### 🧪 Feature 6: Fertilizer Advisory (Hour 15–17)
+---
+
+## 🧪 7. Fertilizer Advisory
+
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 39 | Fertilizer input form (N, P, K levels, soil type) | 🟡 Medium | 45 min |
 | 40 | Fertilizer ML model API | 🟡 Medium | 1.5 hr |
 | 41 | Fertilizer result screen with schedule | 🟡 Medium | 45 min |
 
-#### 📚 Feature 7: Gov Schemes & E-Learning (Hour 16–18)
+---
+
+## 📚 8. Government Schemes & E-Learning
+
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
 | 42 | Government schemes list screen (static JSON data) | 🟡 Medium | 1 hr |
 | 43 | Scheme detail screen with eligibility info | 🟡 Medium | 45 min |
 | 44 | Schemes endpoint (Supabase table or FastAPI static JSON) | 🟢 Low | 30 min |
 
-**Phase 3 Deliverable:** Crop recommendation + fertilizer advisory + gov schemes browsable.
-
 ---
 
-### 🟢 PHASE 4: Polish, Integration & Demo Prep (Hour 18–24)
-
-> **Goal:** Make everything DEMO-READY. Smooth, beautiful, no crashes.
+## ✨ 9. Polish & Demo Prep
 
 | # | Task | Priority | Est. Time |
 |---|---|---|---|
@@ -129,11 +121,9 @@
 | 53 | Presentation slides (problem, solution, demo, tech stack, impact) | 🔴 Critical | 1.5 hr |
 | 54 | Demo rehearsal — practice the pitch (3 min) | 🔴 Critical | 30 min |
 
-**Phase 4 Deliverable:** Polished APK, killer presentation, rehearsed 3-min demo.
-
 ---
 
-## 🎯 Feature Priority Matrix (What to Build vs. What to Skip)
+## 🎯 Feature Priority Matrix
 
 | Feature | Priority | Build in 24hr? | Demo Impact |
 |---|---|---|---|
@@ -170,7 +160,7 @@
 
 ---
 
-## 📂 Project Structure (React Native + Expo)
+## 📂 Project Structure
 
 ```
 farmease-app/
