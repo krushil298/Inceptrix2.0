@@ -83,7 +83,23 @@ export default function LoginScreen() {
         }
     };
 
-    {/* Language Selector */ }
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+        >
+            {/* Hero illustration area */}
+            <View style={styles.heroSection}>
+                <Image source={require('../../assets/farm_hero_banner.png')} style={styles.heroImage} />
+                <View style={styles.heroOverlay}>
+                    <Text style={styles.heroTitle}>{t('common.appName')}</Text>
+                    <Text style={styles.heroSubtitle}>{t('common.tagline')}</Text>
+                </View>
+            </View>
+
+            {/* Login form */}
+            <View style={styles.formSection}>
+                {/* Language Selector */}
                 <View style={styles.langRow}>
                     <Text style={styles.langLabel}>{t('login.languageLabel')}:</Text>
                     <TouchableOpacity
@@ -107,58 +123,56 @@ export default function LoginScreen() {
                     {otpSent ? t('login.otpTitle') : t('login.title')}
                 </Text>
 
-    {
-        !otpSent ? (
-            <>
-                <Input
-                    label={t('login.phoneLabel')}
-                    placeholder={t('login.phonePlaceholder')}
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                    maxLength={10}
-                    leftIcon={<Text style={styles.countryCode}>+91</Text>}
-                    error={error}
-                />
-                <Button
-                    title={t('login.sendOtp')}
-                    onPress={handleSendOtp}
-                    loading={loading}
-                    fullWidth
-                    size="lg"
-                />
-            </>
-        ) : (
-        <>
-            <Input
-                label={t('login.otpLabel')}
-                placeholder={t('login.otpPlaceholder')}
-                value={otp}
-                onChangeText={setOtp}
-                keyboardType="number-pad"
-                maxLength={6}
-                error={error}
-            />
-            <Button
-                title={t('login.verifyOtp')}
-                onPress={handleVerifyOtp}
-                loading={loading}
-                fullWidth
-                size="lg"
-            />
-            <Button
-                title={t('login.resendOtp')}
-                onPress={handleSendOtp}
-                variant="ghost"
-                style={{ marginTop: spacing.sm }}
-            />
-        </>
-    )
-    }
+                {!otpSent ? (
+                    <>
+                        <Input
+                            label={t('login.phoneLabel')}
+                            placeholder={t('login.phonePlaceholder')}
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                            maxLength={10}
+                            leftIcon={<Text style={styles.countryCode}>+91</Text>}
+                            error={error}
+                        />
+                        <Button
+                            title={t('login.sendOtp')}
+                            onPress={handleSendOtp}
+                            loading={loading}
+                            fullWidth
+                            size="lg"
+                        />
+                    </>
+                ) : (
+                    <>
+                        <Input
+                            label={t('login.otpLabel')}
+                            placeholder={t('login.otpPlaceholder')}
+                            value={otp}
+                            onChangeText={setOtp}
+                            keyboardType="number-pad"
+                            maxLength={6}
+                            error={error}
+                        />
+                        <Button
+                            title={t('login.verifyOtp')}
+                            onPress={handleVerifyOtp}
+                            loading={loading}
+                            fullWidth
+                            size="lg"
+                        />
+                        <Button
+                            title={t('login.resendOtp')}
+                            onPress={handleSendOtp}
+                            variant="ghost"
+                            style={{ marginTop: spacing.sm }}
+                        />
+                    </>
+                )}
 
-    <Text style={styles.termsText}>{t('login.terms')}</Text>
-            </View >
-        </KeyboardAvoidingView >
+                <Text style={styles.termsText}>{t('login.terms')}</Text>
+            </View>
+        </KeyboardAvoidingView>
     );
 }
 
