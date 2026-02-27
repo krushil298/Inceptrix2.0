@@ -92,7 +92,7 @@ export default function BuyerHomeScreen() {
                                 <Text style={{ fontSize: 40 }}>{deal.emoji}</Text>
                             </View>
                             <View style={styles.dealInfo}>
-                                <Text style={styles.dealName} numberOfLines={1}>{deal.name}</Text>
+                                <Text style={styles.dealName} numberOfLines={1}>{t(deal.nameKey)}</Text>
                                 <View style={styles.priceRow}>
                                     <Text style={styles.dealPrice}>{formatPrice(deal.price)}/{deal.unit}</Text>
                                     <Text style={styles.originalPrice}>₹{deal.originalPrice}</Text>

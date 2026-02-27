@@ -64,16 +64,32 @@ export function useTranslation() {
         (textOrKey: string): string => {
             if (!textOrKey) return '';
 
-            // 1. Try hardcoded local translation first
+            // 1. Try local hardcoded translation
             const local = getHardcodedTranslation(language, textOrKey);
             if (local) return local;
 
-            // 2. Resolve to English literal for API-based translation
+            // 2. Resolve to English literal
             const text = getLiteralFromKey(textOrKey);
             if (language === 'en') return text;
 
-            // 3. Fallback to session cache (translated via NLP)
-            return translationCache[language]?.[text] ?? text;
+            // 3. Fallback to cache
+            const cached = translationCache[language]?.[text];
+            if (cached !== undefined) return cached;
+
+            // 4. Trigger background auto-translate if not in cache (JIT translation)
+            // This ensures strings not in pre-preload lists still get translated
+            const currentLang = language;
+            import('../services/translate').then(({ translateOne }) => {
+                translateOne(text, currentLang).then(res => {
+                    if (res && res !== text) {
+                        if (!translationCache[currentLang]) translationCache[currentLang] = {};
+                        translationCache[currentLang][text] = res;
+                        notifyCacheUpdated();
+                    }
+                });
+            });
+
+            return text;
         },
         [language]
     );

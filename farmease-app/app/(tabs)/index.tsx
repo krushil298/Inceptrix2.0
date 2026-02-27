@@ -73,9 +73,17 @@ export default function DashboardScreen() {
         'dashboard.marketAlertText',
         'dashboard.healthTip',
         'dashboard.healthTipText',
-        'dashboard.goodMorning',
-        'dashboard.goodAfternoon',
         'dashboard.goodEvening',
+        'tabs.home',
+        'tabs.scan',
+        'tabs.market',
+        'tabs.rentals',
+        'tabs.profile',
+        'dashboard.shopCategories',
+        'categories.seeds',
+        'categories.fertilizers',
+        'categories.pesticides',
+        'categories.crops',
     ]);
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();

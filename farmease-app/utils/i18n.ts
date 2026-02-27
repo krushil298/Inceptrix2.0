@@ -261,7 +261,15 @@ const translations = {
             home: 'Home',
             scan: 'Scan',
             market: 'Market',
+            rentals: 'Rentals',
             profile: 'Profile',
+        },
+        // ---- Marketplace Categories ----
+        categories: {
+            seeds: 'Seeds',
+            fertilizers: 'Fertilizers',
+            pesticides: 'Pesticides',
+            crops: 'Crops',
         },
     },
 
@@ -521,7 +529,15 @@ const translations = {
             home: 'होम',
             scan: 'स्कैन',
             market: 'बाज़ार',
+            rentals: 'किराये पर',
             profile: 'प्रोफ़ाइल',
+        },
+        // ---- Marketplace Categories ----
+        categories: {
+            seeds: 'बीज',
+            fertilizers: 'उर्वरक',
+            pesticides: 'कीटनाशक',
+            crops: 'फसलें',
         },
     },
 };
