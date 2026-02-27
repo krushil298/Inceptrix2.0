@@ -28,6 +28,8 @@
 - [x] Profile: Role-aware menu, sign out
 - [x] FastAPI backend: disease/crop/fertilizer/weather/marketplace endpoints
 - [x] Supabase schema SQL
+- [x] **Dummy Auth Setup:** You can now login by writing any phone number and entering `123456` as the OTP for testing without Supabase.
+- [x] **Premium AI UI:** Integrated high-quality 3D isometric AI illustrations for categories and headers.
 
 ## 📋 Pending — Polish & Integration
 - [ ] Replace sample/mock data with real Supabase queries
