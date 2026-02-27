@@ -114,10 +114,16 @@ export default function DashboardScreen() {
         >
             {/* Greeting + Weather */}
             <View style={styles.greetingSection}>
-                <View>
+                <View style={{ flex: 1 }}>
                     <Text style={styles.greeting}>{t(getGreeting())}, {user?.name || (role === 'farmer' ? t('profile.farmer') : t('profile.buyer'))}!</Text>
                     <Text style={styles.location}>📍 {user?.farm_location || t('dashboard.setLocation')}</Text>
                 </View>
+                {isTranslating && (
+                    <View style={styles.translatingBadge}>
+                        <ActivityIndicator size="small" color={colors.primary} />
+                        <Text style={styles.translatingText}>Translating...</Text>
+                    </View>
+                )}
             </View>
 
             {/* Weather Widget */}

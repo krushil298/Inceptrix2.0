@@ -136,15 +136,21 @@ export function usePreloadTranslations(strings: string[]) {
         }
 
         setIsTranslating(true);
+        const targetLanguage = language;
 
-        translateBatch(toFetch, language).then((translations) => {
-            if (!translationCache[language]) translationCache[language] = {};
+        translateBatch(toFetch, targetLanguage).then((results) => {
+            if (!translationCache[targetLanguage]) translationCache[targetLanguage] = {};
             toFetch.forEach((original, i) => {
-                translationCache[language][original] = translations[i];
+                // Only cache if we actually got a translation back
+                if (results[i] && results[i] !== original) {
+                    translationCache[targetLanguage][original] = results[i];
+                }
             });
             setIsTranslating(false);
-            // Notify all subscribed components to re-render with new translations
             notifyCacheUpdated();
+        }).catch(err => {
+            console.error(`[usePreloadTranslations] Fetch failed:`, err);
+            setIsTranslating(false);
         });
     }, [language, strings]);
 
