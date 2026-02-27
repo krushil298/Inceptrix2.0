@@ -137,6 +137,11 @@ const translations = {
             addToCart: 'Add to Cart',
             loading: 'Setting up your marketplace',
             loadingSubtext: 'Handpicked from local farmers 🌿',
+            deals: {
+                tomatoes: 'Farm Fresh Tomatoes',
+                rice: 'Organic Basmati Rice',
+                mangoes: 'Fresh Alphonso Mangoes',
+            },
         },
 
         // ---- Disease Detection ----
@@ -405,6 +410,11 @@ const translations = {
             addToCart: 'टोकरी में जोड़ें',
             loading: 'आपका बाज़ार तैयार हो रहा है',
             loadingSubtext: 'स्थानीय किसानों से चुना गया 🌿',
+            deals: {
+                tomatoes: 'फार्म ताजा टमाटर',
+                rice: 'जैविक बासमती चावल',
+                mangoes: 'ताजा अल्फांसो आम',
+            },
         },
 
         // ---- Disease Detection ----
