@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
@@ -7,6 +7,8 @@ import CategoryPill from '../../components/ui/CategoryPill';
 import { CROP_CATEGORIES } from '../../utils/constants';
 import { useAuthStore } from '../../store/useAuthStore';
 import { formatPrice } from '../../utils/helpers';
+import MarketplaceLoader from '../../components/ui/MarketplaceLoader';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
@@ -25,8 +27,15 @@ const SAMPLE_PRODUCTS = [
 export default function MarketplaceScreen() {
     const router = useRouter();
     const { role } = useAuthStore();
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 2000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const filteredProducts = SAMPLE_PRODUCTS.filter((p) => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -34,11 +43,15 @@ export default function MarketplaceScreen() {
         return matchesSearch && matchesCategory;
     });
 
+    if (isLoading) {
+        return <MarketplaceLoader />;
+    }
+
     return (
         <View style={styles.container}>
             {/* Fixed Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>Marketplace</Text>
+                <Text style={styles.title}>{t('marketplace.title')}</Text>
                 {role === 'farmer' && (
                     <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/add-product' as any)}>
                         <Text style={styles.addBtnText}>+ List Crop</Text>
@@ -55,8 +68,8 @@ export default function MarketplaceScreen() {
                 <TouchableOpacity style={styles.mandiBanner}>
                     <Text style={{ fontSize: 20 }}>📈</Text>
                     <View style={{ flex: 1, marginLeft: spacing.md }}>
-                        <Text style={styles.mandiTitle}>Today's Mandi Prices</Text>
-                        <Text style={styles.mandiSubtext}>Tomato ₹45/kg ↑ • Rice ₹85/kg → • Wheat ₹40/kg ↓</Text>
+                        <Text style={styles.mandiTitle}>{t('marketplace.mandiTitle')}</Text>
+                        <Text style={styles.mandiSubtext}>{t('marketplace.mandiSubtext')}</Text>
                     </View>
                     <Text style={styles.mandiArrow}>→</Text>
                 </TouchableOpacity>
@@ -80,7 +93,7 @@ export default function MarketplaceScreen() {
                                 <Text style={styles.productLocation} numberOfLines={1}>📍 {product.location}</Text>
                             </View>
                             <TouchableOpacity style={styles.cartBtn}>
-                                <Text style={styles.cartBtnText}>Add to Cart</Text>
+                                <Text style={styles.cartBtnText}>{t('marketplace.addToCart')}</Text>
                             </TouchableOpacity>
                         </TouchableOpacity>
                     ))}

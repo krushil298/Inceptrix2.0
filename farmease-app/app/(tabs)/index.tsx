@@ -9,6 +9,7 @@ import WeatherWidget from '../../components/dashboard/WeatherWidget';
 import CategoryGrid from '../../components/dashboard/CategoryGrid';
 import { DailyTipModal, useDailyTip, ALL_TIPS } from '../../components/dashboard/DailyTipModal';
 import type { DailyTip } from '../../components/dashboard/DailyTipModal';
+import { useTranslation } from '../../hooks/useTranslation';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -46,9 +47,24 @@ const TIP_MODAL_MAP: Record<string, DailyTip> = {
 export default function DashboardScreen() {
     const router = useRouter();
     const { user, role } = useAuthStore();
+    const { t } = useTranslation();
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
     const [tappedTip, setTappedTip] = useState<DailyTip | null>(null);
+
+    const TIPS = [
+        { title: t('dashboard.seasonalTip'), text: t('dashboard.seasonalTipText'), emoji: '🌧️', bg: '#3E6B48', mapKey: 'Seasonal Tip' },
+        { title: t('dashboard.marketAlert'), text: t('dashboard.marketAlertText'), emoji: '📈', bg: '#B8860B', mapKey: 'Market Alert' },
+        { title: t('dashboard.healthTip'), text: t('dashboard.healthTipText'), emoji: '🔍', bg: '#8B5E3C', mapKey: 'Health Tip' },
+    ];
+
+    const QUICK_ACTIONS = [
+        { title: t('dashboard.diseaseDetection'), emoji: '📸', desc: t('dashboard.diseaseDetectionDesc'), route: '/(tabs)/detect', color: '#6B4226' },
+        { title: t('dashboard.cropRecommend'), emoji: '🌾', desc: t('dashboard.cropRecommendDesc'), route: '/crop-recommend', color: '#C06014' },
+        { title: t('dashboard.marketplace'), emoji: '🛒', desc: t('dashboard.marketplaceDesc'), route: '/(tabs)/marketplace', color: '#2D6A4F' },
+        { title: t('dashboard.rentEquipment'), emoji: '🚜', desc: t('dashboard.rentEquipmentDesc'), route: '/rentals', color: '#8B6F47' },
+        { title: t('dashboard.govSchemes'), emoji: '📋', desc: t('dashboard.govSchemesDesc'), route: '/schemes', color: '#B8860B' },
+    ];
 
     const categoryRoutes: Record<string, string> = {
         '1': '/(tabs)/detect',
@@ -72,8 +88,8 @@ export default function DashboardScreen() {
             {/* Greeting + Weather */}
             <View style={styles.greetingSection}>
                 <View>
-                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || (role === 'farmer' ? 'Farmer' : 'Buyer')}!</Text>
-                    <Text style={styles.location}>📍 {user?.farm_location || 'Set your location'}</Text>
+                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || (role === 'farmer' ? t('profile.farmer') : t('profile.buyer'))}!</Text>
+                    <Text style={styles.location}>📍 {user?.farm_location || t('dashboard.setLocation')}</Text>
                 </View>
             </View>
 
@@ -90,7 +106,7 @@ export default function DashboardScreen() {
                         key={i}
                         style={[styles.tipCard, { backgroundColor: tip.bg }]}
                         activeOpacity={0.8}
-                        onPress={() => setTappedTip(TIP_MODAL_MAP[tip.title] || null)}
+                        onPress={() => setTappedTip(TIP_MODAL_MAP[tip.mapKey] || null)}
                     >
                         <Text style={styles.tipEmoji}>{tip.emoji}</Text>
                         <View>
@@ -102,7 +118,7 @@ export default function DashboardScreen() {
             </ScrollView>
 
             {/* Quick Actions Grid */}
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.quickActions')}</Text>
             <View style={styles.actionsGrid}>
                 {QUICK_ACTIONS.map((action, i) => (
                     <TouchableOpacity

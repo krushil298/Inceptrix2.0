@@ -7,11 +7,12 @@ import Input from '../../components/ui/Input';
 import Header from '../../components/ui/Header';
 import { useAuthStore } from '../../store/useAuthStore';
 import { upsertProfile } from '../../services/auth';
-import { SOIL_TYPES } from '../../utils/constants';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function RegisterFarmerScreen() {
     const router = useRouter();
     const { session, setUser, setOnboarded } = useAuthStore();
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [farmLocation, setFarmLocation] = useState('');
     const [landSize, setLandSize] = useState('');
@@ -41,16 +42,13 @@ export default function RegisterFarmerScreen() {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Header title="Farmer Registration" showBack onBack={() => router.back()} />
-
+            <Header title={t('registerFarmer.title')} showBack onBack={() => router.back()} />
             <Text style={styles.emoji}>👨‍🌾</Text>
-            <Text style={styles.subtitle}>Tell us about your farm</Text>
-
-            <Input label="Full Name" placeholder="Enter your name" value={name} onChangeText={setName} />
-            <Input label="Farm Location" placeholder="Village, District, State" value={farmLocation} onChangeText={setFarmLocation} />
-            <Input label="Land Size (acres)" placeholder="e.g. 5" value={landSize} onChangeText={setLandSize} keyboardType="numeric" />
-
-            <Button title="Complete Registration" onPress={handleSubmit} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.xl }} />
+            <Text style={styles.subtitle}>{t('registerFarmer.subtitle')}</Text>
+            <Input label={t('registerFarmer.nameLabel')} placeholder={t('registerFarmer.namePlaceholder')} value={name} onChangeText={setName} />
+            <Input label={t('registerFarmer.locationLabel')} placeholder={t('registerFarmer.locationPlaceholder')} value={farmLocation} onChangeText={setFarmLocation} />
+            <Input label={t('registerFarmer.farmSizeLabel')} placeholder={t('registerFarmer.farmSizePlaceholder')} value={landSize} onChangeText={setLandSize} keyboardType="numeric" />
+            <Button title={t('registerFarmer.submit')} onPress={handleSubmit} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.xl }} />
         </ScrollView>
     );
 }

@@ -13,29 +13,23 @@ import Header from '../components/ui/Header';
 import Button from '../components/ui/Button';
 import { useCartStore } from '../store/useCartStore';
 import { colors, borderRadius, spacing, typography, shadows } from '../utils/theme';
+import { useTranslation } from '../hooks/useTranslation';
 
 const DELIVERY_FEE = 49;
 
 export default function CartScreen() {
     const router = useRouter();
     const { items, updateQuantity, removeItem, clearCart, getTotal } = useCartStore();
+    const { t } = useTranslation();
 
     const subtotal = getTotal();
     const total = items.length > 0 ? subtotal + DELIVERY_FEE : 0;
 
     const handlePlaceOrder = () => {
         Alert.alert(
-            '🎉 Order Placed!',
-            `Your order of ₹${total.toLocaleString('en-IN')} has been placed successfully.\n\nYou will receive a confirmation call from the seller shortly.`,
-            [
-                {
-                    text: 'Done',
-                    onPress: () => {
-                        clearCart();
-                        router.back();
-                    },
-                },
-            ]
+            t('cart.orderSuccess'),
+            `${t('cart.orderSuccessMsg').replace('{total}', total.toLocaleString('en-IN'))}\n\n₹${total.toLocaleString('en-IN')}`,
+            [{ text: t('cart.done'), onPress: () => { clearCart(); router.back(); } }]
         );
     };
 
@@ -96,16 +90,9 @@ export default function CartScreen() {
     const renderEmpty = () => (
         <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>🛒</Text>
-            <Text style={styles.emptyTitle}>Your Cart is Empty</Text>
-            <Text style={styles.emptySubtitle}>
-                Browse the marketplace and add fresh produce to your cart
-            </Text>
-            <Button
-                title="Browse Marketplace"
-                onPress={() => router.back()}
-                variant="outline"
-                style={styles.browseButton}
-            />
+            <Text style={styles.emptyTitle}>{t('cart.emptyTitle')}</Text>
+            <Text style={styles.emptySubtitle}>{t('cart.emptySubtitle')}</Text>
+            <Button title={t('cart.browseMarketplace')} onPress={() => router.back()} variant="outline" style={styles.browseButton} />
         </View>
     );
 
@@ -119,7 +106,7 @@ export default function CartScreen() {
                 rightAction={
                     items.length > 0 ? (
                         <TouchableOpacity onPress={clearCart} activeOpacity={0.7}>
-                            <Text style={styles.clearText}>Clear All</Text>
+                            <Text style={styles.clearText}>{t('cart.clearAll')}</Text>
                         </TouchableOpacity>
                     ) : undefined
                 }
@@ -138,27 +125,23 @@ export default function CartScreen() {
             {items.length > 0 && (
                 <View style={styles.summaryContainer}>
                     <View style={styles.summaryCard}>
-                        <Text style={styles.summaryTitle}>Order Summary</Text>
+                        <Text style={styles.summaryTitle}>{t('cart.orderSummary')}</Text>
 
                         <View style={styles.summaryRow}>
-                            <Text style={styles.summaryLabel}>Subtotal</Text>
-                            <Text style={styles.summaryValue}>
-                                ₹{subtotal.toLocaleString('en-IN')}
-                            </Text>
+                            <Text style={styles.summaryLabel}>{t('cart.subtotal')}</Text>
+                            <Text style={styles.summaryValue}>₹{subtotal.toLocaleString('en-IN')}</Text>
                         </View>
                         <View style={styles.summaryRow}>
-                            <Text style={styles.summaryLabel}>Delivery Fee</Text>
+                            <Text style={styles.summaryLabel}>{t('cart.deliveryFee')}</Text>
                             <Text style={styles.summaryValue}>₹{DELIVERY_FEE}</Text>
                         </View>
                         <View style={[styles.summaryRow, styles.totalRow]}>
-                            <Text style={styles.totalLabel}>Total</Text>
-                            <Text style={styles.totalValue}>
-                                ₹{total.toLocaleString('en-IN')}
-                            </Text>
+                            <Text style={styles.totalLabel}>{t('cart.total')}</Text>
+                            <Text style={styles.totalValue}>₹{total.toLocaleString('en-IN')}</Text>
                         </View>
 
                         <Button
-                            title={`Place Order  ·  ₹${total.toLocaleString('en-IN')}`}
+                            title={`${t('cart.placeOrder')}  ·  ₹${total.toLocaleString('en-IN')}`}
                             onPress={handlePlaceOrder}
                             fullWidth
                             size="lg"

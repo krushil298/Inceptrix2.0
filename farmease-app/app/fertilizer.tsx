@@ -5,6 +5,7 @@ import { colors, spacing, typography, borderRadius, shadows } from '../utils/the
 import Header from '../components/ui/Header';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { useTranslation } from '../hooks/useTranslation';
 
 const FERTILIZER_RESULTS = [
     { name: 'DAP (Di-ammonium Phosphate)', quantity: '50 kg/acre', schedule: 'Before sowing', emoji: '🧪' },
@@ -14,6 +15,7 @@ const FERTILIZER_RESULTS = [
 
 export default function FertilizerScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [nitrogen, setNitrogen] = useState('');
     const [phosphorus, setPhosphorus] = useState('');
     const [potassium, setPotassium] = useState('');
@@ -32,9 +34,9 @@ export default function FertilizerScreen() {
     if (showResults) {
         return (
             <ScrollView style={styles.container}>
-                <Header title="Fertilizer Recommendation" showBack onBack={() => setShowResults(false)} />
+                <Header title={t('fertilizer.resultsTitle')} showBack onBack={() => setShowResults(false)} />
                 <View style={styles.summaryCard}>
-                    <Text style={styles.summaryTitle}>Soil Analysis Summary</Text>
+                    <Text style={styles.summaryTitle}>{t('fertilizer.soilSummary')}</Text>
                     <View style={styles.summaryRow}>
                         <View style={styles.summaryItem}><Text style={styles.summaryLabel}>N</Text><Text style={styles.summaryValue}>{nitrogen || '40'}</Text></View>
                         <View style={styles.summaryItem}><Text style={styles.summaryLabel}>P</Text><Text style={styles.summaryValue}>{phosphorus || '35'}</Text></View>
@@ -42,7 +44,7 @@ export default function FertilizerScreen() {
                     </View>
                 </View>
 
-                <Text style={styles.sectionTitle}>Recommended Fertilizers</Text>
+                <Text style={styles.sectionTitle}>{t('fertilizer.recommended')}</Text>
                 {FERTILIZER_RESULTS.map((fert, i) => (
                     <View key={i} style={styles.fertCard}>
                         <Text style={{ fontSize: 28 }}>{fert.emoji}</Text>
@@ -54,7 +56,7 @@ export default function FertilizerScreen() {
                     </View>
                 ))}
                 <View style={{ padding: spacing.xl }}>
-                    <Button title="Try Different Values" onPress={() => setShowResults(false)} variant="outline" fullWidth />
+                    <Button title={t('fertilizer.tryDifferent')} onPress={() => setShowResults(false)} variant="outline" fullWidth />
                 </View>
             </ScrollView>
         );
@@ -62,17 +64,17 @@ export default function FertilizerScreen() {
 
     return (
         <ScrollView style={styles.container}>
-            <Header title="Fertilizer Advisory" showBack onBack={() => router.back()} />
+            <Header title={t('fertilizer.title')} showBack onBack={() => router.back()} />
             <View style={styles.form}>
                 <Text style={{ fontSize: 50, textAlign: 'center', marginBottom: spacing.lg }}>🧪</Text>
-                <Text style={styles.formTitle}>Enter Soil Nutrient Levels</Text>
+                <Text style={styles.formTitle}>{t('fertilizer.formTitle')}</Text>
 
-                <Input label="Nitrogen (N) Level" placeholder="e.g. 40" value={nitrogen} onChangeText={setNitrogen} keyboardType="numeric" />
-                <Input label="Phosphorus (P) Level" placeholder="e.g. 35" value={phosphorus} onChangeText={setPhosphorus} keyboardType="numeric" />
-                <Input label="Potassium (K) Level" placeholder="e.g. 50" value={potassium} onChangeText={setPotassium} keyboardType="numeric" />
-                <Input label="Crop Type" placeholder="e.g. Rice, Wheat, Cotton" value={cropType} onChangeText={setCropType} />
+                <Input label={t('fertilizer.nitrogenLabel')} placeholder={t('fertilizer.nitrogenPlaceholder')} value={nitrogen} onChangeText={setNitrogen} keyboardType="numeric" />
+                <Input label={t('fertilizer.phosphorusLabel')} placeholder={t('fertilizer.phosphorusPlaceholder')} value={phosphorus} onChangeText={setPhosphorus} keyboardType="numeric" />
+                <Input label={t('fertilizer.potassiumLabel')} placeholder={t('fertilizer.potassiumPlaceholder')} value={potassium} onChangeText={setPotassium} keyboardType="numeric" />
+                <Input label={t('fertilizer.cropTypeLabel')} placeholder={t('fertilizer.cropTypePlaceholder')} value={cropType} onChangeText={setCropType} />
 
-                <Button title="Get Fertilizer Advice" onPress={handleAnalyze} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.lg }} />
+                <Button title={t('fertilizer.getAdvice')} onPress={handleAnalyze} loading={loading} fullWidth size="lg" style={{ marginTop: spacing.lg }} />
             </View>
         </ScrollView>
     );
