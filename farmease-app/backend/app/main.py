@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routes import disease, crop, fertilizer, weather, marketplace
+from app.routes import disease, crop, fertilizer, weather, marketplace, translate
 
 settings = get_settings()
 
@@ -37,6 +37,7 @@ app.include_router(crop.router, prefix="/predict", tags=["Crop Recommendation"])
 app.include_router(fertilizer.router, prefix="/predict", tags=["Fertilizer Advisory"])
 app.include_router(weather.router, prefix="/api", tags=["Weather"])
 app.include_router(marketplace.router, prefix="/api", tags=["Marketplace"])
+app.include_router(translate.router, prefix="/api", tags=["Translation"])
 
 
 # ── Health check ──────────────────────────────────────────────

@@ -1,20 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography, borderRadius, shadows } from '../../utils/theme';
 import { useAuthStore } from '../../store/useAuthStore';
 import Button from '../../components/ui/Button';
+import LanguagePicker from '../../components/ui/LanguagePicker';
+import { usePreloadTranslations } from '../../hooks/useTranslation';
+import { getLanguageByCode } from '../../utils/languages';
+import { useLanguageStore } from '../../store/useLanguageStore';
+
+const STRINGS = [
+    'My Orders', 'Disease History', 'My Listings', 'Saved Schemes',
+    'Language', 'Help & Support', 'About FarmEase', 'Sign Out',
+    'Farmer', 'Buyer',
+];
 
 export default function ProfileScreen() {
     const router = useRouter();
     const { user, role, logout } = useAuthStore();
+    const { language } = useLanguageStore();
+    const [langPickerVisible, setLangPickerVisible] = useState(false);
+    const { t } = usePreloadTranslations(STRINGS);
+
+    const currentLang = getLanguageByCode(language);
 
     const menuItems = [
         { title: 'My Orders', emoji: '📦', route: '' },
         { title: 'Disease History', emoji: '🔬', route: '' },
         { title: 'My Listings', emoji: '📋', route: '', farmerOnly: true },
         { title: 'Saved Schemes', emoji: '⭐', route: '' },
-        { title: 'Language', emoji: '🌐', route: '' },
+        {
+            title: 'Language',
+            emoji: '🌐',
+            route: '',
+            onPress: () => setLangPickerVisible(true),
+            subtitle: `${currentLang.flag} ${currentLang.nativeName}`,
+        },
         { title: 'Help & Support', emoji: '❓', route: '' },
         { title: 'About FarmEase', emoji: 'ℹ️', route: '' },
     ];
@@ -27,7 +48,7 @@ export default function ProfileScreen() {
                     <Text style={{ fontSize: 40 }}>{role === 'farmer' ? '👨‍🌾' : '🛒'}</Text>
                 </View>
                 <Text style={styles.name}>{user?.name || 'User'}</Text>
-                <Text style={styles.role}>{role === 'farmer' ? 'Farmer' : 'Buyer'}</Text>
+                <Text style={styles.role}>{t(role === 'farmer' ? 'Farmer' : 'Buyer')}</Text>
                 <Text style={styles.phone}>📱 {user?.phone || 'Not set'}</Text>
                 {user?.farm_location && <Text style={styles.location}>📍 {user.farm_location}</Text>}
             </View>
@@ -37,9 +58,18 @@ export default function ProfileScreen() {
                 {menuItems
                     .filter((item) => !item.farmerOnly || role === 'farmer')
                     .map((item, i) => (
-                        <TouchableOpacity key={i} style={styles.menuItem}>
+                        <TouchableOpacity
+                            key={i}
+                            style={styles.menuItem}
+                            onPress={item.onPress}
+                        >
                             <Text style={{ fontSize: 20 }}>{item.emoji}</Text>
-                            <Text style={styles.menuText}>{item.title}</Text>
+                            <View style={{ flex: 1, marginLeft: spacing.md }}>
+                                <Text style={styles.menuText}>{t(item.title)}</Text>
+                                {item.subtitle && (
+                                    <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                                )}
+                            </View>
                             <Text style={styles.menuArrow}>›</Text>
                         </TouchableOpacity>
                     ))}
@@ -48,7 +78,7 @@ export default function ProfileScreen() {
             {/* Logout */}
             <View style={styles.logoutSection}>
                 <Button
-                    title="Sign Out"
+                    title={t('Sign Out')}
                     onPress={async () => {
                         await logout();
                         router.replace('/(auth)/login');
@@ -59,6 +89,12 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.version}>FarmEase v1.0.0</Text>
+
+            {/* Language Picker Modal */}
+            <LanguagePicker
+                visible={langPickerVisible}
+                onClose={() => setLangPickerVisible(false)}
+            />
         </ScrollView>
     );
 }
@@ -79,7 +115,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface,
         padding: spacing.base, borderRadius: borderRadius.lg, marginBottom: spacing.sm, ...shadows.sm,
     },
-    menuText: { flex: 1, fontSize: typography.sizes.base, color: colors.text, marginLeft: spacing.md, fontWeight: '500' },
+    menuText: { fontSize: typography.sizes.base, color: colors.text, fontWeight: '500' },
+    menuSubtitle: { fontSize: typography.sizes.xs, color: colors.textSecondary, marginTop: 2 },
     menuArrow: { fontSize: typography.sizes.xl, color: colors.textLight },
     logoutSection: { padding: spacing.xl },
     version: { textAlign: 'center', fontSize: typography.sizes.xs, color: colors.textLight, paddingBottom: spacing['2xl'] },

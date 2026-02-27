@@ -9,6 +9,7 @@ import WeatherWidget from '../../components/dashboard/WeatherWidget';
 import CategoryGrid from '../../components/dashboard/CategoryGrid';
 import { DailyTipModal, useDailyTip, ALL_TIPS } from '../../components/dashboard/DailyTipModal';
 import type { DailyTip } from '../../components/dashboard/DailyTipModal';
+import { usePreloadTranslations } from '../../hooks/useTranslation';
 
 // Category data for horizontal scroll
 const CATEGORIES = [
@@ -43,12 +44,22 @@ const TIP_MODAL_MAP: Record<string, DailyTip> = {
     'Health Tip': ALL_TIPS.find(t => t.category === 'Health Tip')!,
 };
 
+const STRINGS = [
+    'Quick Actions', 'Soil Intelligence', 'Crop Planning',
+    'Disease Detection', 'Crop Recommend', 'Marketplace', 'Rent Equipment', 'Gov Schemes',
+    'Scan crop leaves', 'Get best crops', 'Buy & sell crops', 'Rent from locals', 'Browse schemes',
+    'Seasonal Tip', 'Market Alert', 'Health Tip',
+    'Analyze Your Soil', 'Get Started', 'What to Grow', 'Fertilizer Guide',
+    'AI-based suggestions', 'Optimal nutrients', 'Farmer', 'Buyer',
+];
+
 export default function DashboardScreen() {
     const router = useRouter();
     const { user, role } = useAuthStore();
     const [refreshing, setRefreshing] = useState(false);
     const { showTip, dismissTip, tip: dailyTip } = useDailyTip();
     const [tappedTip, setTappedTip] = useState<DailyTip | null>(null);
+    const { t } = usePreloadTranslations(STRINGS);
 
     const categoryRoutes: Record<string, string> = {
         '1': '/(tabs)/detect',
@@ -72,7 +83,7 @@ export default function DashboardScreen() {
             {/* Greeting + Weather */}
             <View style={styles.greetingSection}>
                 <View>
-                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || (role === 'farmer' ? 'Farmer' : 'Buyer')}!</Text>
+                    <Text style={styles.greeting}>{getGreeting()}, {user?.name || t(role === 'farmer' ? 'Farmer' : 'Buyer')}!</Text>
                     <Text style={styles.location}>📍 {user?.farm_location || 'Set your location'}</Text>
                 </View>
             </View>
@@ -94,15 +105,15 @@ export default function DashboardScreen() {
                     >
                         <Text style={styles.tipEmoji}>{tip.emoji}</Text>
                         <View>
-                            <Text style={styles.tipTitle}>{tip.title}</Text>
-                            <Text style={styles.tipText}>{tip.text}</Text>
+                            <Text style={styles.tipTitle}>{t(tip.title)}</Text>
+                            <Text style={styles.tipText}>{t(tip.text)}</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
             </ScrollView>
 
             {/* Quick Actions Grid */}
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Text style={styles.sectionTitle}>{t('Quick Actions')}</Text>
             <View style={styles.actionsGrid}>
                 {QUICK_ACTIONS.map((action, i) => (
                     <TouchableOpacity
@@ -112,8 +123,8 @@ export default function DashboardScreen() {
                         activeOpacity={0.8}
                     >
                         <Text style={styles.actionEmoji}>{action.emoji}</Text>
-                        <Text style={styles.actionTitle}>{action.title}</Text>
-                        <Text style={styles.actionDesc}>{action.desc}</Text>
+                        <Text style={styles.actionTitle}>{t(action.title)}</Text>
+                        <Text style={styles.actionDesc}>{t(action.desc)}</Text>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -121,7 +132,7 @@ export default function DashboardScreen() {
             {/* Farmer-only: Soil Intelligence */}
             {role === 'farmer' && (
                 <>
-                    <Text style={styles.sectionTitle}>Soil Intelligence</Text>
+                    <Text style={styles.sectionTitle}>{t('Soil Intelligence')}</Text>
                     <TouchableOpacity
                         style={styles.soilCard}
                         onPress={() => router.push('/crop-recommend' as any)}
@@ -130,9 +141,9 @@ export default function DashboardScreen() {
                             <Text style={{ fontSize: 40 }}>🌍</Text>
                         </View>
                         <View style={styles.soilRight}>
-                            <Text style={styles.soilTitle}>Analyze Your Soil</Text>
+                            <Text style={styles.soilTitle}>{t('Analyze Your Soil')}</Text>
                             <Text style={styles.soilDesc}>Enter your soil details to get personalized crop & fertilizer recommendations</Text>
-                            <Text style={styles.soilCta}>Get Started →</Text>
+                            <Text style={styles.soilCta}>{t('Get Started')} →</Text>
                         </View>
                     </TouchableOpacity>
                 </>
@@ -141,17 +152,17 @@ export default function DashboardScreen() {
             {/* Farmer-only: Crop Planning */}
             {role === 'farmer' && (
                 <>
-                    <Text style={styles.sectionTitle}>Crop Planning</Text>
+                    <Text style={styles.sectionTitle}>{t('Crop Planning')}</Text>
                     <View style={styles.planningRow}>
                         <TouchableOpacity style={styles.planCard} onPress={() => router.push('/crop-recommend' as any)}>
                             <Text style={{ fontSize: 30 }}>🌱</Text>
-                            <Text style={styles.planTitle}>What to Grow</Text>
-                            <Text style={styles.planDesc}>AI-based suggestions</Text>
+                            <Text style={styles.planTitle}>{t('What to Grow')}</Text>
+                            <Text style={styles.planDesc}>{t('AI-based suggestions')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.planCard} onPress={() => router.push('/fertilizer' as any)}>
                             <Text style={{ fontSize: 30 }}>🧪</Text>
-                            <Text style={styles.planTitle}>Fertilizer Guide</Text>
-                            <Text style={styles.planDesc}>Optimal nutrients</Text>
+                            <Text style={styles.planTitle}>{t('Fertilizer Guide')}</Text>
+                            <Text style={styles.planDesc}>{t('Optimal nutrients')}</Text>
                         </TouchableOpacity>
                     </View>
                 </>

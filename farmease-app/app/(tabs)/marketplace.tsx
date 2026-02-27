@@ -7,6 +7,9 @@ import CategoryPill from '../../components/ui/CategoryPill';
 import { CROP_CATEGORIES } from '../../utils/constants';
 import { useAuthStore } from '../../store/useAuthStore';
 import { formatPrice } from '../../utils/helpers';
+import { usePreloadTranslations } from '../../hooks/useTranslation';
+
+const STRINGS = ['Marketplace', '+ List Crop', "Today's Mandi Prices", 'Add to Cart'];
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 44;
 
@@ -27,6 +30,7 @@ export default function MarketplaceScreen() {
     const { role } = useAuthStore();
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const { t } = usePreloadTranslations(STRINGS);
 
     const filteredProducts = SAMPLE_PRODUCTS.filter((p) => {
         const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -38,10 +42,10 @@ export default function MarketplaceScreen() {
         <View style={styles.container}>
             {/* Fixed Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>Marketplace</Text>
+                <Text style={styles.title}>{t('Marketplace')}</Text>
                 {role === 'farmer' && (
                     <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/add-product' as any)}>
-                        <Text style={styles.addBtnText}>+ List Crop</Text>
+                        <Text style={styles.addBtnText}>{t('+ List Crop')}</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -55,7 +59,7 @@ export default function MarketplaceScreen() {
                 <TouchableOpacity style={styles.mandiBanner}>
                     <Text style={{ fontSize: 20 }}>📈</Text>
                     <View style={{ flex: 1, marginLeft: spacing.md }}>
-                        <Text style={styles.mandiTitle}>Today's Mandi Prices</Text>
+                        <Text style={styles.mandiTitle}>{t("Today's Mandi Prices")}</Text>
                         <Text style={styles.mandiSubtext}>Tomato ₹45/kg ↑ • Rice ₹85/kg → • Wheat ₹40/kg ↓</Text>
                     </View>
                     <Text style={styles.mandiArrow}>→</Text>
@@ -80,7 +84,7 @@ export default function MarketplaceScreen() {
                                 <Text style={styles.productLocation} numberOfLines={1}>📍 {product.location}</Text>
                             </View>
                             <TouchableOpacity style={styles.cartBtn}>
-                                <Text style={styles.cartBtnText}>Add to Cart</Text>
+                                <Text style={styles.cartBtnText}>{t('Add to Cart')}</Text>
                             </TouchableOpacity>
                         </TouchableOpacity>
                     ))}
