@@ -12,80 +12,40 @@
 - [x] UI mockups generated (Dashboard, Auth, Marketplace, Disease Detection, Crop Recommend)
 - [x] Farmer/Buyer role selection added to auth flow
 - [x] Implementation plan created
-- [x] **Marketplace feature (Agent 4)** — all screens, components, service, and store
+- [x] Expo project init + TypeScript + all dependencies installed
+- [x] Design system (`utils/theme.ts`) — colors, spacing, typography, border radius, shadows
+- [x] Reusable UI components: Button, Card, Input, Header, CategoryPill, SearchBar
+- [x] Supabase client (`services/supabase.ts`) + Auth service (`services/auth.ts`)
+- [x] Zustand stores: useAuthStore, useCartStore, useFarmStore
+- [x] Navigation: Root layout → Auth stack → Tab navigator
+- [x] Auth screens: Login (OTP), Role Selection (Farmer/Buyer), Register Farmer, Register Buyer, Onboarding
+- [x] Dashboard: Greeting + weather, category scroll, farming tips carousel, quick actions grid, soil intelligence card, crop planning
+- [x] Disease Detection: Camera screen with scan overlay, gallery picker, results screen with treatments
+- [x] Marketplace: Search + category filter, Mandi price banner, product grid, product detail, add product, cart
+- [x] Crop Recommendation: Soil type selector, pH/temp/humidity/rainfall inputs, top 5 results with scores
+- [x] Fertilizer Advisory: N/P/K input, recommendations with schedule
+- [x] Government Schemes: Category filter, expandable cards with eligibility & deadlines
+- [x] Profile: Role-aware menu, sign out
+- [x] FastAPI backend: disease/crop/fertilizer/weather/marketplace endpoints
+- [x] Supabase schema SQL
 
-## 🔄 In Progress
-- [/] Project foundation setup (Expo init, deps, folder structure)
-
-## 📋 Pending — Foundation (Agent 1)
-- [ ] Expo project init (`npx create-expo-app farmease-app --template blank-typescript`)
-- [ ] Install deps: expo-router, react-native-paper, nativewind, zustand, @supabase/supabase-js
-- [ ] Folder structure: `app/`, `components/`, `services/`, `store/`, `hooks/`, `utils/`
-- [ ] Design system file (`utils/theme.ts`) — colors, spacing, typography, border radius
-- [ ] Reusable UI components: `Button`, `Card`, `Input`, `Header`, `CategoryPill`, `SearchBar`
-- [ ] Navigation skeleton: Auth stack → Tab navigator (Dashboard, Detect, Market, Profile)
-- [ ] Root layout (`app/_layout.tsx`) with font loading + theme provider
-
-## 📋 Pending — Auth & Profile (Agent 2)
-- [ ] `services/supabase.ts` — Supabase client init
-- [ ] `app/(auth)/login.tsx` — Phone + OTP login screen
-- [ ] `app/(auth)/role-select.tsx` — Farmer/Buyer role selection
-- [ ] `app/(auth)/register-farmer.tsx` — Farmer registration form
-- [ ] `app/(auth)/register-buyer.tsx` — Buyer registration form
-- [ ] `app/(auth)/onboarding.tsx` — 3-slide onboarding
-- [ ] `store/useAuthStore.ts` — Zustand auth store with role-based routing
-- [ ] `app/(tabs)/profile.tsx` — Profile screen
-- [ ] Supabase Auth Phone OTP integration
-
-## ✅ Completed — Dashboard & AI Screens (Agent 3)
-- [x] `app/(tabs)/index.tsx` — Dashboard screen (enhanced with WeatherWidget)
-- [x] `components/dashboard/WeatherWidget.tsx` — API + mock fallback
-- [x] `components/dashboard/QuickActions.tsx` — 2×2 grid
-- [x] `components/dashboard/CategoryRow.tsx` — Horizontal scroll
-- [x] `components/dashboard/FarmingTips.tsx` — Auto-scroll carousel
-- [x] `app/(tabs)/detect.tsx` — Camera disease detection screen
-- [x] `app/disease-result.tsx` — Enhanced with ResultCard + TreatmentCard
-- [x] `components/detection/CameraView.tsx` — Viewfinder with guides
-- [x] `components/detection/ResultCard.tsx` — Confidence bar + severity
-- [x] `components/detection/TreatmentCard.tsx` — Typed treatment steps
-- [x] `app/crop-recommend.tsx` — Crop recommendation form + results
-- [x] `app/fertilizer.tsx` — Fertilizer advisory form + results
-- [x] `app/schemes.tsx` — Government schemes list + accordion detail
-
-## ✅ Done — Marketplace (Agent 4)
-- [x] `app/(tabs)/marketplace.tsx` — Product listing grid
-- [x] `app/product-detail.tsx` — Product detail screen
-- [x] `app/add-product.tsx` — Farmer product listing form
-- [x] `app/cart.tsx` — Cart screen
-- [x] `components/marketplace/ProductCard.tsx`
-- [x] `components/marketplace/ProductForm.tsx`
-- [x] `components/marketplace/FilterModal.tsx` — Sort & price range filter
-- [x] `services/marketplace.ts` — Supabase CRUD + demo data fallback
-- [x] `store/useCartStore.ts` — Cart state (pre-existing)
-- [x] Search & filter functionality
-
-## ✅ Completed — Backend FastAPI (Agent 5)
-- [x] `backend/app/main.py` — FastAPI entry point with CORS
-- [x] `backend/app/config.py` — Env vars (pydantic-settings)
-- [x] `backend/app/supabase_client.py` — Supabase Python client
-- [x] `backend/app/routes/disease.py` — Disease prediction endpoint (PlantVillage CNN + treatment DB)
-- [x] `backend/app/routes/crop.py` — Crop recommendation endpoint (23 crops + RF model)
-- [x] `backend/app/routes/fertilizer.py` — Fertilizer advisory endpoint (NPK analysis)
-- [x] `backend/app/routes/weather.py` — Weather proxy (OpenWeatherMap)
-- [x] `backend/app/routes/marketplace.py` — Product CRUD (Supabase)
-- [x] `backend/requirements.txt`
-- [x] `backend/supabase_schema.sql` — 6 tables + RLS policies + triggers
-- [x] `backend/Dockerfile`
-- [x] `backend/.env.example`
-
-## 📋 Pending — Polish & Demo
-- [ ] UI animations + transitions
-- [ ] Error handling + empty states
+## 📋 Pending — Polish & Integration
+- [ ] Replace sample/mock data with real Supabase queries
+- [ ] Connect disease detection to actual FastAPI ML endpoint
+- [ ] Connect crop recommendation to actual FastAPI ML endpoint
+- [ ] Connect fertilizer advisory to actual FastAPI ML endpoint
+- [ ] Integrate real OpenWeatherMap API for weather widget
+- [ ] Add actual image upload to Supabase Storage
+- [ ] Implement Supabase Realtime for marketplace updates
+- [ ] Add loading states and error handling for all API calls
+- [ ] UI animations + transitions (react-native-reanimated)
+- [ ] Lottie animations for loading & success states
 - [ ] App icon + splash screen
-- [ ] Demo data seeding
-- [ ] APK build
-- [ ] Lottie animations
+- [ ] Multi-language toggle (Hindi + English)
+- [ ] Demo data seeding in Supabase
+- [ ] Build APK for demo
+- [ ] Presentation slides
 
 ---
 
-> **For AI resuming:** Start from the first unchecked `[ ]` item. The project uses Expo Router (file-based routing), Zustand for state, Supabase for auth/db/storage, and FastAPI for ML endpoints. UI follows Swiggy-style layout with green (#2D6A4F) + cream (#FEFAE0) theme. See `FARMEASE_MOBILE_APP_PLAN.md` for full details.
+> **For AI resuming:** The complete app shell is built with 73 files. All screens exist with sample data. The next step is to wire up real APIs (Supabase + FastAPI) and polish the UI. Start from the first unchecked `[ ]` item above.
