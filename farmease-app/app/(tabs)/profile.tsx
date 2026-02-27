@@ -6,12 +6,9 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useLanguageStore } from '../../store/useLanguageStore';
 import Button from '../../components/ui/Button';
 import { useTranslation } from '../../hooks/useTranslation';
-import type { Language } from '../../utils/i18n';
-
-const LANGUAGES: { code: Language; label: string; flag: string }[] = [
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
-];
+import LanguagePicker from '../../components/ui/LanguagePicker';
+import { LanguageCode } from '../../store/useLanguageStore';
+import { getLanguageByCode } from '../../utils/languages';
 
 export default function ProfileScreen() {
     const router = useRouter();
@@ -20,12 +17,20 @@ export default function ProfileScreen() {
     const { t } = useTranslation();
     const [showLangModal, setShowLangModal] = useState(false);
 
+    const currentLang = getLanguageByCode(language);
+
     const menuItems = [
         { title: t('profile.myOrders'), emoji: '📦', route: '', action: undefined },
         { title: t('profile.diseaseHistory'), emoji: '🔬', route: '', action: undefined },
         { title: t('profile.myListings'), emoji: '📋', route: '', farmerOnly: true, action: undefined },
         { title: t('profile.savedSchemes'), emoji: '⭐', route: '', action: undefined },
-        { title: t('profile.language'), emoji: '🌐', route: '', action: () => setShowLangModal(true), badge: LANGUAGES.find(l => l.code === language)?.label },
+        {
+            title: t('profile.language'),
+            emoji: '🌐',
+            route: '',
+            action: () => setShowLangModal(true),
+            badge: currentLang.nativeName
+        },
         { title: t('profile.helpSupport'), emoji: '❓', route: '', action: undefined },
         { title: t('profile.about'), emoji: 'ℹ️', route: '', action: undefined },
     ];
@@ -76,29 +81,10 @@ export default function ProfileScreen() {
 
             <Text style={styles.version}>{t('common.version')}</Text>
 
-            {/* Language Selection Modal */}
-            <Modal visible={showLangModal} transparent animationType="fade" onRequestClose={() => setShowLangModal(false)}>
-                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowLangModal(false)}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>{t('common.selectLanguage')}</Text>
-                        {LANGUAGES.map((lang) => (
-                            <TouchableOpacity
-                                key={lang.code}
-                                style={[styles.langOption, language === lang.code && styles.langOptionActive]}
-                                onPress={() => {
-                                    setLanguage(lang.code);
-                                    setShowLangModal(false);
-                                }}
-                                activeOpacity={0.7}
-                            >
-                                <Text style={styles.langFlag}>{lang.flag}</Text>
-                                <Text style={[styles.langLabel, language === lang.code && styles.langLabelActive]}>{lang.label}</Text>
-                                {language === lang.code && <Text style={styles.langCheck}>✓</Text>}
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </TouchableOpacity>
-            </Modal>
+            <LanguagePicker
+                visible={showLangModal}
+                onClose={() => setShowLangModal(false)}
+            />
         </ScrollView>
     );
 }
